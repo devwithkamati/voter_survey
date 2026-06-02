@@ -9,6 +9,30 @@ class ApiUrls {
       "${baseUrl}SurveyEmployeeList/GetEmployee";
 
   static const String getSurveyList = "${baseUrl}SurveyList/GetSurveyData";
+
   static const String getTodaySurvey =
       "${baseUrl}TodaySurveyList/GetTodaySurveyList";
+
+  static const String addSurveyEmployee =
+      "${baseUrl}AddSurveyEmployee/AddSurveyEmployee";
+
+  static const String getPanchayat = "${baseUrl}PanchayatList/GetPanchayat";
+
+  static const String getBooth = "${baseUrl}AllBoothList/GetBooth";
+
+  static const String surveyListByVillage =
+      "${baseUrl}SurveyListByVillage/GetSurveyListByVillage";
+
+  /// TOTAL SURVEY API
+  static String employeeSurveyList(int employeeId) =>
+      "$baseUrl/EmployeeSurveyList/GetEmployeeSurveyList?surveyEmployeeId=$employeeId";
+
+  static String getEmpTodaySurvey(int employeeId) =>
+      "$baseUrl/EmployeeTodaySurvey/GetTodaySurvey?EmployeeId=$employeeId";
+
+  /// ASSIGNED VILLAGE API
+  static const String assignedVillage =
+      "${baseUrl}AssignedVillageList/GetAssignedVillage";
+  static const String updateEmployeeStatus =
+      "$baseUrl/UpdateEmployeeStatus/UpdateStatus";
 }

@@ -14,18 +14,31 @@ class MemberScreen extends StatefulWidget {
 }
 
 class _MemberScreenState extends State<MemberScreen> {
-  final MemberController controller = Get.put(MemberController());
-
+  // final MemberController controller = Get.put(MemberController());
+  final MemberController controller = Get.find<MemberController>();
   final TextEditingController searchController = TextEditingController();
 
   List<MemberData> filteredList = [];
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   ever(controller.memberList, (callback) {
+  //     filteredList = controller.memberList.toList();
+  //     setState(() {});
+  //   });
+  // }
 
   @override
   void initState() {
     super.initState();
 
-    ever(controller.memberList, (callback) {
-      filteredList = controller.memberList.toList();
+    filteredList = List<MemberData>.from(controller.memberList);
+
+    ever(controller.memberList, (_) {
+      filteredList = List<MemberData>.from(controller.memberList);
+
       setState(() {});
     });
   }

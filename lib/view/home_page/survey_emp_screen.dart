@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:voter_survey_admin/view/home_page/emp_action_screen.dart';
 import 'package:voter_survey_admin/view/home_page/surveyEmp_details_screen.dart';
 
 import '../../controller/survey_employee_controller.dart';
 import '../../utils/appColors.dart';
 
-class SurveyEmployeeScreen extends StatelessWidget {
+class SurveyEmployeeScreen extends StatefulWidget {
   SurveyEmployeeScreen({super.key});
+
+  @override
+  State<SurveyEmployeeScreen> createState() => _SurveyEmployeeScreenState();
+}
+
+class _SurveyEmployeeScreenState extends State<SurveyEmployeeScreen> {
   final SurveyEmployeeController controller = Get.put(
     SurveyEmployeeController(),
   );
@@ -147,14 +154,16 @@ class SurveyEmployeeScreen extends StatelessWidget {
                               ),
                               SizedBox(height: 7),
                               GestureDetector(
+                                // onTap: () {
+                                //   Get.to(() => EmpActionScreen());
+                                // },
                                 onTap: () {
-                                  // Get.to(
-                                  //       () => SurveyEmployeeDetailsScreen(
-                                  //     employeeId: item.id!,
-                                  //   ),
-                                  //);
+                                  Get.to(
+                                    () => EmpActionScreen(
+                                      employeeId: item.id ?? 0,
+                                    ),
+                                  );
                                 },
-
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -162,14 +171,14 @@ class SurveyEmployeeScreen extends StatelessWidget {
                                   ),
 
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.1),
+                                    color: AppColors.saffron.withOpacity(0.8),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
 
                                   child: const Text(
                                     "Action",
                                     style: TextStyle(
-                                      color: Colors.green,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -185,27 +194,24 @@ class SurveyEmployeeScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
 
                               children: [
-                                detailTile("कर्मचारी का नाम", item.fullName),
+                                detailTile("नाम :", item.fullName),
+
+                                detailTile("आईडी :", item.id?.toString()),
 
                                 detailTile(
-                                  "कर्मचारी आईडी",
-                                  item.id?.toString(),
-                                ),
-
-                                detailTile(
-                                  "मोबाइल नंबर",
+                                  "मोबाइल नंबर :",
                                   item.mobileNumber ?? "N/A",
                                 ),
 
-                                detailTile(
-                                  "पूर्ण किए गए गांव",
-                                  item.completedVillageName ?? "N/A",
-                                ),
-
-                                detailTile(
-                                  "लंबित गांव",
-                                  item.pendingVillageName ?? "N/A",
-                                ),
+                                // detailTile(
+                                //   "पूर्ण किए गए गांव",
+                                //   item.completedVillageName ?? "N/A",
+                                // ),
+                                //
+                                // detailTile(
+                                //   "लंबित गांव",
+                                //   item.pendingVillageName ?? "N/A",
+                                // ),
                               ],
                             ),
                           ),
@@ -229,7 +235,7 @@ class SurveyEmployeeScreen extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            flex: 4,
+            flex: 3,
             child: Text(
               title,
               style: const TextStyle(fontWeight: FontWeight.w600),

@@ -1,10 +1,107 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../../controller/add_survey_staff_controller.dart';
 import '../../utils/appColors.dart';
 
-class AddSurveyStaffScreen extends StatelessWidget {
+class AddSurveyStaffScreen extends StatefulWidget {
   const AddSurveyStaffScreen({super.key});
+
+  @override
+  State<AddSurveyStaffScreen> createState() => _AddSurveyStaffScreenState();
+}
+
+class _AddSurveyStaffScreenState extends State<AddSurveyStaffScreen> {
+  final fullNameController = TextEditingController();
+  final fatherNameController = TextEditingController();
+  final mobileController = TextEditingController();
+  final alternateController = TextEditingController();
+  final emailController = TextEditingController();
+  final addressController = TextEditingController();
+  final districtController = TextEditingController();
+  final voterIdController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  final AddSurveyStaffController controller = Get.put(
+    AddSurveyStaffController(),
+  );
+  String? selectedState;
+  final aadhaarController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
+  File? userImage;
+  File? aadhaarImage;
+  File? panImage;
+  File? voterImage;
+  File? dlImage;
+
+  final List<String> indianStates = [
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+  ]..sort();
+
+  Future<void> pickImage(String type) async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
+
+    if (pickedFile == null) return;
+
+    setState(() {
+      switch (type) {
+        case "user":
+          userImage = File(pickedFile.path);
+          break;
+
+        case "aadhaar":
+          aadhaarImage = File(pickedFile.path);
+          break;
+
+        case "pan":
+          panImage = File(pickedFile.path);
+          break;
+
+        case "voter":
+          voterImage = File(pickedFile.path);
+          break;
+
+        case "dl":
+          dlImage = File(pickedFile.path);
+          break;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,56 +115,6 @@ class AddSurveyStaffScreen extends StatelessWidget {
           child: Column(
             children: [
               /// HEADER
-              // Container(
-              //   padding: const EdgeInsets.all(20),
-              //
-              //   decoration: BoxDecoration(
-              //     gradient: AppColors.primaryGradient,
-              //     borderRadius: BorderRadius.circular(28),
-              //   ),
-              //
-              //   child: const Row(
-              //     children: [
-              //       CircleAvatar(
-              //         radius: 28,
-              //         backgroundColor: Colors.white,
-              //         child: Icon(
-              //           Icons.person_add_alt_1_rounded,
-              //           color: AppColors.saffron,
-              //           size: 30,
-              //         ),
-              //       ),
-              //
-              //       SizedBox(width: 14),
-              //
-              //       Expanded(
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //
-              //           children: [
-              //             Text(
-              //               "Add Survey Staff",
-              //               style: TextStyle(
-              //                 color: Colors.white,
-              //                 fontSize: 22,
-              //                 fontWeight: FontWeight.bold,
-              //               ),
-              //             ),
-              //
-              //             SizedBox(height: 4),
-              //
-              //             Text(
-              //               "Create New Employee",
-              //               style: TextStyle(color: Colors.white70),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              //
-              // const SizedBox(height: 20),
               Row(
                 children: [
                   /// 🔥 BACK BUTTON
@@ -126,23 +173,42 @@ class AddSurveyStaffScreen extends StatelessWidget {
                 icon: Icons.person,
                 child: Column(
                   children: [
-                    customField(hint: "Full Name", icon: Icons.person),
+                    customField(
+                      hint: "Full Name",
+                      icon: Icons.person,
+                      controller: fullNameController,
+                    ),
 
                     customField(
                       hint: "Father Name",
                       icon: Icons.family_restroom,
+                      controller: fatherNameController,
                     ),
 
-                    customField(hint: "Mobile Number", icon: Icons.phone),
+                    customField(
+                      hint: "Mobile Number",
+                      icon: Icons.phone,
+                      controller: mobileController,
+                    ),
 
                     customField(
                       hint: "Alternate Number",
                       icon: Icons.phone_android,
+                      controller: alternateController,
                     ),
 
-                    customField(hint: "Email", icon: Icons.email),
+                    customField(
+                      hint: "Email",
+                      icon: Icons.email,
+                      controller: emailController,
+                    ),
 
-                    customField(hint: "Password", icon: Icons.lock),
+                    customField(
+                      hint: "Password",
+                      icon: Icons.lock,
+                      controller: passwordController,
+                      obscureText: true,
+                    ),
                   ],
                 ),
               ),
@@ -153,15 +219,60 @@ class AddSurveyStaffScreen extends StatelessWidget {
                 icon: Icons.location_on,
                 child: Column(
                   children: [
-                    customField(hint: "Address", icon: Icons.home, maxLines: 3),
+                    customField(
+                      hint: "Address",
+                      icon: Icons.home,
+                      maxLines: 3,
+                      controller: aadhaarController,
+                    ),
 
-                    customField(hint: "State", icon: Icons.map),
-
-                    customField(hint: "District", icon: Icons.location_city),
+                    // customField(hint: "State", icon: Icons.map),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: DropdownButtonFormField<String>(
+                        value: selectedState,
+                        decoration: InputDecoration(
+                          hintText: "State",
+                          prefixIcon: const Icon(
+                            Icons.map,
+                            color: AppColors.saffron,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.background,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(18),
+                            borderSide: const BorderSide(
+                              color: AppColors.saffron,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+                        items: indianStates.map((state) {
+                          return DropdownMenuItem(
+                            value: state,
+                            child: Text(state),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedState = value;
+                          });
+                        },
+                      ),
+                    ),
 
                     customField(
-                      hint: "Assigned Village",
-                      icon: Icons.holiday_village,
+                      hint: "District",
+                      icon: Icons.location_city,
+                      controller: districtController,
                     ),
                   ],
                 ),
@@ -173,14 +284,45 @@ class AddSurveyStaffScreen extends StatelessWidget {
                 icon: Icons.badge,
                 child: Column(
                   children: [
-                    customField(hint: "Identity Type", icon: Icons.credit_card),
+                    TextFormField(
+                      controller: aadhaarController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 12,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(12),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Enter Aadhaar Number";
+                        }
 
-                    customField(
-                      hint: "Aadhaar Number",
-                      icon: Icons.credit_card,
+                        if (value.length != 12) {
+                          return "Aadhaar must be 12 digits";
+                        }
+
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Aadhaar Number",
+                        prefixIcon: const Icon(
+                          Icons.credit_card,
+                          color: AppColors.saffron,
+                        ),
+                        filled: true,
+                        fillColor: AppColors.background,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
                     ),
 
-                    customField(hint: "Voter ID", icon: Icons.how_to_vote),
+                    customField(
+                      hint: "Voter ID",
+                      icon: Icons.how_to_vote,
+                      controller: voterIdController,
+                    ),
                   ],
                 ),
               ),
@@ -191,15 +333,40 @@ class AddSurveyStaffScreen extends StatelessWidget {
                 icon: Icons.upload_file,
                 child: Column(
                   children: [
-                    uploadTile("User Image"),
+                    // uploadTile("User Image"),
+                    //
+                    // uploadTile("Aadhaar Image"),
+                    //
+                    // uploadTile("PAN Image"),
+                    //
+                    // uploadTile("Voter ID Image"),
+                    //
+                    // uploadTile("Driving License Image"),
+                    uploadTile(
+                      "User Image",
+                      userImage,
+                      () => pickImage("user"),
+                    ),
 
-                    uploadTile("Aadhaar Image"),
+                    uploadTile(
+                      "Aadhaar Image",
+                      aadhaarImage,
+                      () => pickImage("aadhaar"),
+                    ),
 
-                    uploadTile("PAN Image"),
+                    uploadTile("PAN Image", panImage, () => pickImage("pan")),
 
-                    uploadTile("Voter ID Image"),
+                    uploadTile(
+                      "Voter ID Image",
+                      voterImage,
+                      () => pickImage("voter"),
+                    ),
 
-                    uploadTile("Driving License Image"),
+                    uploadTile(
+                      "Driving License Image",
+                      dlImage,
+                      () => pickImage("dl"),
+                    ),
                   ],
                 ),
               ),
@@ -207,23 +374,80 @@ class AddSurveyStaffScreen extends StatelessWidget {
               const SizedBox(height: 10),
 
               /// SAVE BUTTON
-              SizedBox(
-                width: double.infinity,
-                height: 52,
+              // SizedBox(
+              //   width: double.infinity,
+              //   height: 52,
+              //
+              //   child: Container(
+              //     decoration: BoxDecoration(
+              //       gradient: AppColors.primaryGradient,
+              //       borderRadius: BorderRadius.circular(18),
+              //     ),
+              //
+              //     child: const Center(
+              //       child: Text(
+              //         "Save Staff",
+              //         style: TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 18,
+              //           fontWeight: FontWeight.w700,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: InkWell(
+                    onTap: controller.isLoading.value
+                        ? null
+                        : () {
+                            controller.addSurveyStaff(
+                              FullName: fullNameController.text.trim(),
+                              FatherName: fatherNameController.text.trim(),
+                              MobileNumber: mobileController.text.trim(),
+                              AlternateNumber: alternateController.text.trim(),
+                              Email: emailController.text.trim(),
+                              Address: addressController.text.trim(),
+                              State: selectedState ?? "",
+                              District: districtController.text.trim(),
+                              AadhaarNumber: aadhaarController.text.trim(),
+                              VoterId: voterIdController.text.trim(),
+                              Password: passwordController.text.trim(),
 
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
+                              userImage: userImage,
+                              aadhaarImage: aadhaarImage,
+                              panImage: panImage,
+                              voterImage: voterImage,
+                              drivingLicenseImage: dlImage,
+                            );
+                          },
                     borderRadius: BorderRadius.circular(18),
-                  ),
-
-                  child: const Center(
-                    child: Text(
-                      "Save Staff",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: AppColors.primaryGradient,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Center(
+                        child: controller.isLoading.value
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : const Text(
+                                "Save Staff",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -295,17 +519,59 @@ class AddSurveyStaffScreen extends StatelessWidget {
     );
   }
 
+  // Widget customField({
+  //   required String hint,
+  //   required IconData icon,
+  //   int maxLines = 1,
+  // }) {
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 12),
+  //
+  //     child: TextFormField(
+  //       maxLines: maxLines,
+  //
+  //       decoration: InputDecoration(
+  //         hintText: hint,
+  //
+  //         prefixIcon: Icon(icon, color: AppColors.saffron),
+  //
+  //         filled: true,
+  //         fillColor: AppColors.background,
+  //
+  //         border: OutlineInputBorder(
+  //           borderRadius: BorderRadius.circular(18),
+  //           borderSide: BorderSide.none,
+  //         ),
+  //
+  //         enabledBorder: OutlineInputBorder(
+  //           borderRadius: BorderRadius.circular(18),
+  //           borderSide: BorderSide.none,
+  //         ),
+  //
+  //         focusedBorder: OutlineInputBorder(
+  //           borderRadius: BorderRadius.circular(18),
+  //           borderSide: const BorderSide(color: AppColors.saffron, width: 1.5),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget customField({
     required String hint,
     required IconData icon,
+    required TextEditingController controller,
     int maxLines = 1,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-
       child: TextFormField(
+        controller: controller,
         maxLines: maxLines,
-
+        obscureText: obscureText,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hint,
 
@@ -333,19 +599,32 @@ class AddSurveyStaffScreen extends StatelessWidget {
     );
   }
 
-  Widget uploadTile(String title) {
+  Widget uploadTile(String title, File? imageFile, VoidCallback onTap) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
-
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(18),
       ),
-
       child: Row(
         children: [
-          const Icon(Icons.cloud_upload_rounded, color: AppColors.saffron),
+          if (imageFile != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.file(
+                imageFile,
+                width: 55,
+                height: 55,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            const Icon(
+              Icons.cloud_upload_rounded,
+              color: AppColors.saffron,
+              size: 40,
+            ),
 
           const SizedBox(width: 12),
 
@@ -357,12 +636,12 @@ class AddSurveyStaffScreen extends StatelessWidget {
           ),
 
           ElevatedButton(
-            onPressed: () {},
+            onPressed: onTap,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.saffron,
               foregroundColor: Colors.white,
             ),
-            child: const Text("Choose"),
+            child: Text(imageFile == null ? "Choose" : "Change"),
           ),
         ],
       ),

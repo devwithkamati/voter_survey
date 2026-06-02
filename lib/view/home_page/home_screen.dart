@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:voter_survey_admin/view/home_page/add_survey_emp_screen.dart';
+import 'package:voter_survey_admin/view/home_page/booth_management_screen.dart';
+import 'package:voter_survey_admin/view/home_page/panchayat_list_screen.dart';
 import 'package:voter_survey_admin/view/home_page/survey_emp_screen.dart';
 import 'package:voter_survey_admin/view/home_page/today_survey_screen.dart';
-import 'package:voter_survey_admin/view/home_page/total_survey_screen.dart';
 
 import '../../controller/auth_controller.dart';
+import '../../controller/panchayat_list_controller.dart';
 import '../../controller/survey_employee_controller.dart';
 import '../../controller/today_survey_controllerdart.dart';
 import '../../controller/total_survey_controller.dart';
@@ -30,10 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final TodaySurveyController todaySurveyController = Get.put(
     TodaySurveyController(),
   );
+  final PanchayatController panchayatController = Get.put(
+    PanchayatController(),
+  );
+
+  // final MemberController memberController = Get.find<MemberController>();
 
   @override
   void initState() {
     super.initState();
+    //  memberController.getMemberApi();
 
     controller.getEmployeeApi();
   }
@@ -298,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Obx(
                     () => dashboardCard(
-                      title: "Total Survey Staff",
+                      title: "Total Employee",
 
                       value: controller.employeeList.length.toString(),
 
@@ -314,9 +322,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   dashboardCard(
-                    title: "Add Survey Staff",
-                    value: "1",
+                    title: "Add Employee",
                     subtitle: "नया पंजीकृत करें",
+                    value: "",
                     icon: Icons.badge_rounded,
                     color: AppColors.primary,
                     onTap: () {
@@ -325,8 +333,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Obx(
                     () => dashboardCard(
-                      title: "Total Survey Report",
-                      value: surveyController.totalSurvey.value.toString(),
+                      title: "Total Report",
+                      value: panchayatController.totalPanchayat.value
+                          .toString(),
                       subtitle: "कुल सर्वे",
 
                       icon: Icons.list_alt_sharp,
@@ -334,13 +343,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: AppColors.green,
 
                       onTap: () {
-                        Get.to(() => const TotalSurveyListScreen());
+                        //   Get.to(() => const TotalSurveyListScreen());
+                        Get.to(() => PanchayatListScreen());
                       },
                     ),
                   ),
                   Obx(
                     () => dashboardCard(
-                      title: "Today Survey Report",
+                      title: "Today Report",
 
                       value: todaySurveyController.todaySurveyCount.value
                           .toString(),
@@ -362,43 +372,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Icons.how_to_vote_rounded,
                     color: AppColors.saffron,
                   ),
-                  dashboardCard(
-                    title: "Total Members",
-                    value: "100",
-                    subtitle: "कुल सदस्य",
-                    icon: Icons.people_alt,
-                    color: AppColors.secondary,
-                  ),
 
-                  dashboardCard(
-                    title: "New Members",
-                    value: "10",
-                    subtitle: "नए सदस्य",
-                    icon: Icons.person_add_outlined,
-                    color: AppColors.success,
-                  ),
+                  // Obx(
+                  //   () => dashboardCard(
+                  //     title: "Total Members",
+                  //     value: memberController.isLoading.value
+                  //         ? "..."
+                  //         : memberController.totalMember.value.toString(),
+                  //     subtitle: "कुल सदस्य",
+                  //     icon: Icons.people_alt,
+                  //     color: AppColors.secondary,
+                  //     onTap: () => Get.to(() => const MemberScreen()),
+                  //   ),
+                  // ),
 
-                  dashboardCard(
-                    title: "Complain and \n Suggestion",
-                    value: "2",
-                    subtitle: "कुल शिकायतें",
-                    icon: Icons.feedback_rounded,
-                    color: AppColors.yellow,
-                  ),
-                  dashboardCard(
-                    title: "Pending Complaint",
-                    value: "4",
-                    subtitle: "लंबित शिकायतें",
-                    icon: Icons.pending_actions_rounded,
-                    color: AppColors.red,
-                  ),
+                  // dashboardCard(
+                  //   title: "New Members",
+                  //   value: "10",
+                  //   subtitle: "नए सदस्य",
+                  //   icon: Icons.person_add_outlined,
+                  //   color: AppColors.success,
+                  // ),
 
+                  // dashboardCard(
+                  //   title: "Complain and \n Suggestion",
+                  //   value: "2",
+                  //   subtitle: "कुल शिकायतें",
+                  //   icon: Icons.feedback_rounded,
+                  //   color: AppColors.yellow,
+                  // ),
+                  // dashboardCard(
+                  //   title: "Pending Complaint",
+                  //   value: "4",
+                  //   subtitle: "लंबित शिकायतें",
+                  //   icon: Icons.pending_actions_rounded,
+                  //   color: AppColors.red,
+                  // ),
                   dashboardCard(
                     title: "Booth Management",
-                    value: "252",
+                    value: "6",
                     subtitle: "बूथों का प्रबंधन",
                     icon: Icons.account_balance_rounded,
                     color: AppColors.darkBlue,
+                    onTap: () {
+                      Get.to(() => const BoothManagementScreen());
+                    },
                   ),
                 ],
               ),
@@ -642,77 +660,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 final bool isSelected = selectedIndex == index;
 
                 return GestureDetector(
-                  // onTap: () async {
-                  //   setState(() {
-                  //     selectedIndex = index;
-                  //   });
-                  //
-                  //   /// 🔥 LOGOUT
-                  //   if (item["title"] == "Logout") {
-                  //     bool? logout = await showDialog(
-                  //       context: context,
-                  //
-                  //       builder: (context) {
-                  //         return AlertDialog(
-                  //           shape: RoundedRectangleBorder(
-                  //             borderRadius: BorderRadius.circular(22),
-                  //           ),
-                  //
-                  //           title: const Text(
-                  //             "Logout",
-                  //
-                  //             style: TextStyle(fontWeight: FontWeight.bold),
-                  //           ),
-                  //
-                  //           content: const Text(
-                  //             "Are you sure you want to logout?",
-                  //           ),
-                  //
-                  //           actions: [
-                  //             TextButton(
-                  //               onPressed: () {
-                  //                 Navigator.pop(context, false);
-                  //               },
-                  //
-                  //               child: const Text(
-                  //                 "Cancel",
-                  //
-                  //                 style: TextStyle(color: AppColors.greyText),
-                  //               ),
-                  //             ),
-                  //
-                  //             ElevatedButton(
-                  //               style: ElevatedButton.styleFrom(
-                  //                 backgroundColor: AppColors.saffron,
-                  //
-                  //                 shape: RoundedRectangleBorder(
-                  //                   borderRadius: BorderRadius.circular(12),
-                  //                 ),
-                  //               ),
-                  //
-                  //               onPressed: () {
-                  //                 Navigator.pop(context, true);
-                  //               },
-                  //
-                  //               child: const Text(
-                  //                 "Logout",
-                  //
-                  //                 style: TextStyle(color: Colors.white),
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         );
-                  //       },
-                  //     );
-                  //
-                  //     /// 🔥 CLEAR SESSION
-                  //     if (logout == true) {
-                  //       StorageService.logout();
-                  //
-                  //       Get.offAll(() => const LoginScreen());
-                  //     }
-                  //   }
-                  // },
                   onTap: () async {
                     setState(() {
                       selectedIndex = index;

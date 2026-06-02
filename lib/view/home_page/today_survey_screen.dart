@@ -112,56 +112,118 @@ class TodaySurveyScreen extends StatelessWidget {
                             ],
                           ),
 
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              /// IMAGE
-                              CircleAvatar(
-                                radius: 32,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 32,
+                                    backgroundImage: NetworkImage(
+                                      "https://aniltripathi.in${item.publicImage}",
+                                    ),
+                                  ),
 
-                                backgroundImage: NetworkImage(
-                                  "https://aniltripathi.in${item.publicImage}",
-                                ),
+                                  const SizedBox(width: 12),
+
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+
+                                      children: [
+                                        /// नाम
+                                        Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 70,
+                                              child: Text(
+                                                "नाम :",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.greyText,
+                                                ),
+                                              ),
+                                            ),
+
+                                            Expanded(
+                                              child: Text(
+                                                "${item.voterName ?? "N/A"}",
+                                                style: const TextStyle(
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        const SizedBox(height: 6),
+
+                                        /// मोबाइल नंबर
+                                        Row(
+                                          children: [
+                                            const SizedBox(
+                                              width: 70,
+                                              child: Text(
+                                                "मोबाइल :",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.greyText,
+                                                ),
+                                              ),
+                                            ),
+
+                                            Expanded(
+                                              child: Text(
+                                                "${item.mobileNo ?? "N/A"}",
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                        const SizedBox(height: 6),
+
+                                        /// गांव
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              width: 70,
+                                              child: Text(
+                                                "गांव :",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.greyText,
+                                                ),
+                                              ),
+                                            ),
+
+                                            Expanded(
+                                              child: Text(
+                                                "${item.village ?? "N/A"}",
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
 
-                              const SizedBox(width: 12),
+                              const SizedBox(height: 12),
 
-                              /// DETAILS
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  children: [
-                                    Text(
-                                      item.voterName ?? "",
-
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-
-                                    const SizedBox(height: 3),
-
-                                    Text(item.mobileNo ?? ""),
-
-                                    const SizedBox(height: 2),
-
-                                    Text(
-                                      item.village ?? "",
-
-                                      style: const TextStyle(
-                                        color: AppColors.greyText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              /// BOOTH BADGE
                               Container(
+                                width: double.infinity,
+
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
-                                  vertical: 8,
+                                  vertical: 10,
                                 ),
 
                                 decoration: BoxDecoration(
@@ -170,13 +232,31 @@ class TodaySurveyScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
 
-                                child: Text(
-                                  item.boothNo ?? "",
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.how_to_vote_rounded,
+                                      color: Colors.green,
+                                      size: 18,
+                                    ),
 
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                    const SizedBox(width: 8),
+
+                                    Expanded(
+                                      child: Text(
+                                        item.boothNo ?? "",
+
+                                        maxLines: 2,
+
+                                        overflow: TextOverflow.ellipsis,
+
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

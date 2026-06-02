@@ -13,6 +13,9 @@ class MemberController extends GetxController {
   /// ================= MEMBER LIST =================
   RxList<MemberData> memberList = <MemberData>[].obs;
 
+  /// ================= TOTAL MEMBER =================
+  RxInt totalMember = 0.obs;
+
   /// ================= ERROR MESSAGE =================
   RxString errorMessage = ''.obs;
 
@@ -27,23 +30,29 @@ class MemberController extends GetxController {
   /// ================= GET MEMBER API =================
   Future<void> getMemberApi() async {
     try {
-      isLoading(true);
+      isLoading.value = true;
 
       errorMessage.value = '';
 
       final result = await memberService.getMembers();
 
-      if (result != null && result.status == true && result.data != null) {
-        memberList.assignAll(result.data!);
+      if (result != null && result.status == true) {
+        /// MEMBER LIST
+        memberList.assignAll(result.data ?? []);
+
+        /// TOTAL MEMBER
+        totalMember.value = result.totalMember ?? 0;
+
+        print("Total Member : ${totalMember.value}");
       } else {
         errorMessage.value = result?.message ?? "No Data Found";
       }
     } catch (e) {
       errorMessage.value = e.toString();
 
-      print("CONTROLLER ERROR : $e");
+      print("MEMBER CONTROLLER ERROR : $e");
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 

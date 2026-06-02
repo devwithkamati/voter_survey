@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:voter_survey_admin/view/member_page/member_screen.dart';
 import 'package:voter_survey_admin/view/profile_page/profile_screen.dart';
 import 'package:voter_survey_admin/view/survey_page/survey_screen.dart';
 
+import '../controller/member_controller.dart';
 import '../utils/appColors.dart';
 import 'compliaint_page/compliaint_screen.dart';
 import 'home_page/home_screen.dart';
@@ -19,9 +21,23 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
   int selectedIndex = 0;
   late List<Widget> pages;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   pages = [
+  //     HomeScreen(),
+  //     SurveyScreen(),
+  //     MemberScreen(),
+  //     ComplaintScreen(),
+  //     ProfileScreen(),
+  //   ];
+  // }
   @override
   void initState() {
     super.initState();
+
+    Get.put(MemberController());
 
     pages = [
       HomeScreen(),
