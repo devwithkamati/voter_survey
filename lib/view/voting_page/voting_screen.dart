@@ -15,60 +15,11 @@ class _VotingScreenState extends State<VotingScreen> {
   int selectedTab = 0;
 
   final List<String> tabs = ["उम्मीदवार अनुसार", "पार्टी अनुसार"];
-
-  final List<Map<String, dynamic>> candidates = [
-    {
-      "name": "अनिल त्रिपाठी",
-      "votes": "4,256",
-      "height": 150.0,
-      "color": AppColors.saffron,
-      "image": "assets/images/aniltri.jpeg",
-    },
-
-    {
-      "name": "राकेश सिंह बघेल",
-      "votes": "2,845",
-      "height": 118.0,
-      "color": AppColors.green,
-      "image": "assets/images/anil.jpeg",
-    },
-
-    {
-      "name": "मदन नारायण सिंह",
-      "votes": "1,756",
-      "height": 88.0,
-      "color": AppColors.blue,
-      "image": "assets/images/bjp_logo.webp",
-    },
-
-    {
-      "name": "मुगरेन्द्र राम त्रिपाठी",
-      "votes": "965",
-      "height": 60.0,
-      "color": Colors.purple,
-      "image": "assets/images/anil.jpeg",
-    },
-
-    {
-      "name": "पप्पू निषाद",
-      "votes": "965",
-      "height": 60.0,
-      "color": Colors.purple,
-      "image": "assets/images/anil.jpeg",
-    },
-
-    {
-      "name": "अन्य",
-      "votes": "636",
-      "height": 42.0,
-      "color": AppColors.orange,
-      "image": "assets/images/bjp_logo.webp",
-    },
-  ];
   final List<Map<String, dynamic>> partiesData = [
     {
       "name": "भाजपा",
       "votes": "2,500",
+      "percentage": "31.31%",
       "height": 180.0,
       "color": Colors.orange,
       "image": "assets/images/bjp_logo.webp",
@@ -76,6 +27,7 @@ class _VotingScreenState extends State<VotingScreen> {
     {
       "name": "सपा",
       "votes": "1,845",
+      "percentage": "23.10%",
       "height": 140.0,
       "color": Colors.red,
       "image": "assets/images/anil.jpeg",
@@ -83,6 +35,7 @@ class _VotingScreenState extends State<VotingScreen> {
     {
       "name": "बसपा",
       "votes": "1,756",
+      "percentage": "21.99%",
       "height": 100.0,
       "color": Colors.blue,
       "image": "assets/images/anil.jpeg",
@@ -90,6 +43,7 @@ class _VotingScreenState extends State<VotingScreen> {
     {
       "name": "कांग्रेस",
       "votes": "1,256",
+      "percentage": "15.73%",
       "height": 70.0,
       "color": Colors.green,
       "image": "assets/images/anil.jpeg",
@@ -97,9 +51,66 @@ class _VotingScreenState extends State<VotingScreen> {
     {
       "name": "अन्य",
       "votes": "636",
+      "percentage": "7.97%",
       "height": 40.0,
       "color": Colors.purple,
       "image": "assets/images/anil.jpeg",
+    },
+  ];
+  final List<Map<String, dynamic>> candidates = [
+    {
+      "name": "अनिल त्रिपाठी",
+      "party": "BJP",
+      "votes": "4,256",
+      "percentage": "37.26%",
+      "height": 150.0,
+      "color": AppColors.saffron,
+      "image": "assets/images/aniltri.jpeg",
+    },
+    {
+      "name": "राकेश सिंह बघेल",
+      "party": "SP",
+      "votes": "2,845",
+      "percentage": "24.91%",
+      "height": 118.0,
+      "color": AppColors.green,
+      "image": "assets/images/anil.jpeg",
+    },
+    {
+      "name": "मदन नारायण सिंह",
+      "party": "BSP",
+      "votes": "1,756",
+      "percentage": "15.37%",
+      "height": 88.0,
+      "color": AppColors.blue,
+      "image": "assets/images/bjp_logo.webp",
+    },
+    {
+      "name": "मुगरेन्द्र राम त्रिपाठी",
+      "party": "INC",
+      "votes": "965",
+      "percentage": "8.45%",
+      "height": 60.0,
+      "color": Colors.purple,
+      "image": "assets/images/anil.jpeg",
+    },
+    {
+      "name": "पप्पू निषाद",
+      "party": "SP",
+      "votes": "965",
+      "percentage": "8.45%",
+      "height": 60.0,
+      "color": Colors.purple,
+      "image": "assets/images/anil.jpeg",
+    },
+    {
+      "name": "अन्य",
+      "party": "OTH",
+      "votes": "636",
+      "percentage": "5.57%",
+      "height": 42.0,
+      "color": AppColors.orange,
+      "image": "assets/images/bjp_logo.webp",
     },
   ];
 
@@ -400,20 +411,15 @@ class _VotingScreenState extends State<VotingScreen> {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
-              /// 🔥 REPORT CARD
+              /// 🔥 TOP CANDIDATE LIST
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 10,
-                ),
-
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.circular(24),
-
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.03),
@@ -421,21 +427,271 @@ class _VotingScreenState extends State<VotingScreen> {
                     ),
                   ],
                 ),
-
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    reportTile(
-                      title: selectedTab == 0
-                          ? "कुल उम्मीदवार सर्वेक्षण"
-                          : "कुल पार्टी सर्वेक्षण",
-                      value: "12,458",
+                    Text(
+                      selectedTab == 0
+                          ? "Top Candidates (By Votes)"
+                          : "Top Parties (By Votes)",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
 
-                    reportTile(title: "आज का सर्वेक्षण", value: "326"),
+                    const SizedBox(height: 15),
+
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columnSpacing: 25,
+                        headingRowColor: MaterialStateProperty.all(
+                          Colors.grey.shade100,
+                        ),
+
+                        columns: selectedTab == 0
+                            ? const [
+                                DataColumn(label: Text("Rank")),
+                                DataColumn(label: Text("Candidate")),
+                                DataColumn(label: Text("Party")),
+                                DataColumn(label: Text("Votes")),
+                                DataColumn(label: Text("Percentage")),
+                              ]
+                            : const [
+                                DataColumn(label: Text("Rank")),
+                                DataColumn(label: Text("Party Name")),
+                                DataColumn(label: Text("Votes")),
+                                DataColumn(label: Text("Percentage")),
+                              ],
+
+                        rows: selectedTab == 0
+                            ? candidates.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                var item = entry.value;
+
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text("${index + 1}")),
+                                    DataCell(Text(item["name"])),
+                                    DataCell(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: item["color"],
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          item["party"] ?? "BJP",
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(Text(item["votes"])),
+                                    DataCell(Text(item["percentage"] ?? "20%")),
+                                  ],
+                                );
+                              }).toList()
+                            : partiesData.asMap().entries.map((entry) {
+                                int index = entry.key;
+                                var item = entry.value;
+
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text("${index + 1}")),
+                                    DataCell(Text(item["name"])),
+                                    DataCell(Text(item["votes"])),
+                                    DataCell(Text(item["percentage"] ?? "20%")),
+                                  ],
+                                );
+                              }).toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),
+              // Container(
+              //   width: double.infinity,
+              //   padding: const EdgeInsets.all(16),
+              //   decoration: BoxDecoration(
+              //     color: AppColors.white,
+              //     borderRadius: BorderRadius.circular(24),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withOpacity(0.03),
+              //         blurRadius: 10,
+              //       ),
+              //     ],
+              //   ),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       Text(
+              //         selectedTab == 0
+              //             ? "Top Candidates (By Votes)"
+              //             : "Top Parties (By Votes)",
+              //         style: const TextStyle(
+              //           fontSize: 18,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //
+              //       const SizedBox(height: 15),
+              //
+              //       /// Header
+              //       Container(
+              //         padding: const EdgeInsets.symmetric(
+              //           vertical: 12,
+              //           horizontal: 8,
+              //         ),
+              //         decoration: BoxDecoration(
+              //           color: Colors.grey.shade100,
+              //           borderRadius: BorderRadius.circular(12),
+              //         ),
+              //         child: const Row(
+              //           children: [
+              //             Expanded(
+              //               flex: 1,
+              //               child: Text(
+              //                 "Rank",
+              //                 style: TextStyle(fontWeight: FontWeight.bold),
+              //               ),
+              //             ),
+              //             Expanded(
+              //               flex: 3,
+              //               child: Text(
+              //                 "Name",
+              //                 style: TextStyle(fontWeight: FontWeight.bold),
+              //               ),
+              //             ),
+              //             Expanded(
+              //               flex: 2,
+              //               child: Text(
+              //                 "Votes",
+              //                 style: TextStyle(fontWeight: FontWeight.bold),
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ),
+              //
+              //       const SizedBox(height: 8),
+              //
+              //       ListView.builder(
+              //         shrinkWrap: true,
+              //         physics: const NeverScrollableScrollPhysics(),
+              //         itemCount: chartData.length,
+              //         itemBuilder: (context, index) {
+              //           final item = chartData[index];
+              //
+              //           return Container(
+              //             margin: const EdgeInsets.only(bottom: 10),
+              //             padding: const EdgeInsets.all(12),
+              //             decoration: BoxDecoration(
+              //               border: Border.all(color: Colors.grey.shade200),
+              //               borderRadius: BorderRadius.circular(14),
+              //             ),
+              //             child: Row(
+              //               children: [
+              //                 Expanded(
+              //                   flex: 1,
+              //                   child: Text(
+              //                     "${index + 1}",
+              //                     style: const TextStyle(
+              //                       fontWeight: FontWeight.bold,
+              //                     ),
+              //                   ),
+              //                 ),
+              //
+              //                 Expanded(
+              //                   flex: 3,
+              //                   child: Row(
+              //                     children: [
+              //                       CircleAvatar(
+              //                         radius: 18,
+              //                         backgroundImage: AssetImage(
+              //                           item["image"],
+              //                         ),
+              //                       ),
+              //
+              //                       const SizedBox(width: 10),
+              //
+              //                       Expanded(
+              //                         child: Text(
+              //                           item["name"],
+              //                           maxLines: 1,
+              //                           overflow: TextOverflow.ellipsis,
+              //                           style: const TextStyle(
+              //                             fontWeight: FontWeight.w600,
+              //                           ),
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   ),
+              //                 ),
+              //
+              //                 Expanded(
+              //                   flex: 2,
+              //                   child: Text(
+              //                     item["votes"],
+              //                     textAlign: TextAlign.end,
+              //                     style: const TextStyle(
+              //                       fontWeight: FontWeight.bold,
+              //                     ),
+              //                   ),
+              //                 ),
+              //               ],
+              //             ),
+              //           );
+              //         },
+              //       ),
+              //     ],
+              //   ),
+              // ),
 
+              // const SizedBox(height: 12),
+              //
+              // /// 🔥 REPORT CARD
+              // Container(
+              //   width: double.infinity,
+              //   padding: const EdgeInsets.symmetric(
+              //     horizontal: 18,
+              //     vertical: 10,
+              //   ),
+              //
+              //   decoration: BoxDecoration(
+              //     color: AppColors.white,
+              //     borderRadius: BorderRadius.circular(24),
+              //
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.black.withOpacity(0.03),
+              //         blurRadius: 10,
+              //       ),
+              //     ],
+              //   ),
+              //
+              //   child: Column(
+              //     children: [
+              //       reportTile(
+              //         title: selectedTab == 0
+              //             ? "कुल उम्मीदवार सर्वेक्षण"
+              //             : "कुल पार्टी सर्वेक्षण",
+              //         value: "12,458",
+              //       ),
+              //
+              //       reportTile(title: "आज का सर्वेक्षण", value: "326"),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 25),
             ],
           ),
