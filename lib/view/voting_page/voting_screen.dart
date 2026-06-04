@@ -4,17 +4,17 @@ import 'package:voter_survey_admin/view/dashbord_screen.dart';
 
 import '../../utils/appColors.dart';
 
-class SurveyScreen extends StatefulWidget {
-  const SurveyScreen({super.key});
+class VotingScreen extends StatefulWidget {
+  const VotingScreen({super.key});
 
   @override
-  State<SurveyScreen> createState() => _SurveyScreenState();
+  State<VotingScreen> createState() => _VotingScreenState();
 }
 
-class _SurveyScreenState extends State<SurveyScreen> {
+class _VotingScreenState extends State<VotingScreen> {
   int selectedTab = 0;
 
-  final List<String> tabs = ["इस माह", "इस सप्ताह", "इस वर्ष"];
+  final List<String> tabs = ["उम्मीदवार अनुसार", "पार्टी अनुसार"];
 
   final List<Map<String, dynamic>> candidates = [
     {
@@ -26,7 +26,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
     },
 
     {
-      "name": "रवि शंकर",
+      "name": "राकेश सिंह बघेल",
       "votes": "2,845",
       "height": 118.0,
       "color": AppColors.green,
@@ -34,7 +34,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
     },
 
     {
-      "name": "सुदीप वर्मा",
+      "name": "मदन नारायण सिंह",
       "votes": "1,756",
       "height": 88.0,
       "color": AppColors.blue,
@@ -42,7 +42,15 @@ class _SurveyScreenState extends State<SurveyScreen> {
     },
 
     {
-      "name": "प्रकाश सिंह",
+      "name": "मुगरेन्द्र राम त्रिपाठी",
+      "votes": "965",
+      "height": 60.0,
+      "color": Colors.purple,
+      "image": "assets/images/anil.jpeg",
+    },
+
+    {
+      "name": "पप्पू निषाद",
       "votes": "965",
       "height": 60.0,
       "color": Colors.purple,
@@ -57,9 +65,47 @@ class _SurveyScreenState extends State<SurveyScreen> {
       "image": "assets/images/bjp_logo.webp",
     },
   ];
+  final List<Map<String, dynamic>> partiesData = [
+    {
+      "name": "भाजपा",
+      "votes": "2,500",
+      "height": 180.0,
+      "color": Colors.orange,
+      "image": "assets/images/bjp_logo.webp",
+    },
+    {
+      "name": "सपा",
+      "votes": "1,845",
+      "height": 140.0,
+      "color": Colors.red,
+      "image": "assets/images/anil.jpeg",
+    },
+    {
+      "name": "बसपा",
+      "votes": "1,756",
+      "height": 100.0,
+      "color": Colors.blue,
+      "image": "assets/images/anil.jpeg",
+    },
+    {
+      "name": "कांग्रेस",
+      "votes": "1,256",
+      "height": 70.0,
+      "color": Colors.green,
+      "image": "assets/images/anil.jpeg",
+    },
+    {
+      "name": "अन्य",
+      "votes": "636",
+      "height": 40.0,
+      "color": Colors.purple,
+      "image": "assets/images/anil.jpeg",
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final chartData = selectedTab == 0 ? candidates : partiesData;
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
 
@@ -110,7 +156,7 @@ class _SurveyScreenState extends State<SurveyScreen> {
                       const SizedBox(width: 12),
 
                       const Text(
-                        "Survey Overview",
+                        "Voting Overview",
 
                         style: TextStyle(
                           fontSize: 21,
@@ -163,7 +209,10 @@ class _SurveyScreenState extends State<SurveyScreen> {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
 
-                        margin: EdgeInsets.only(right: index != 2 ? 10 : 0),
+                        //margin: EdgeInsets.only(right: index != 2 ? 10 : 0),
+                        margin: EdgeInsets.only(
+                          right: index != tabs.length - 1 ? 10 : 0,
+                        ),
 
                         padding: const EdgeInsets.symmetric(vertical: 13),
 
@@ -227,125 +276,124 @@ class _SurveyScreenState extends State<SurveyScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
-                    const Text(
-                      "कौन से उम्मीदवार को कितने लोग पसंद कर रहे हैं",
-
-                      style: TextStyle(
+                    Text(
+                      selectedTab == 0
+                          ? "कौन से उम्मीदवार को कितने लोग पसंद कर रहे हैं"
+                          : "कौन सी पार्टी को कितने लोग पसंद कर रहे हैं",
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textDark,
                       ),
                     ),
-
                     const SizedBox(height: 20),
 
                     /// 🔥 BAR CHART
                     SizedBox(
-                      height: 300,
+                      height: 320,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: List.generate(chartData.length, (index) {
+                            final item = chartData[index];
 
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
 
-                        children: List.generate(candidates.length, (index) {
-                          final item = candidates[index];
+                              children: [
+                                Text(
+                                  item["votes"],
 
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-
-                            children: [
-                              Text(
-                                item["votes"],
-
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
 
-                              const SizedBox(height: 10),
+                                const SizedBox(height: 10),
 
-                              Container(
-                                width: 38,
-                                height: item["height"],
+                                Container(
+                                  width: 38,
+                                  height: item["height"],
 
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
 
-                                    colors: [
-                                      item["color"],
-                                      item["color"].withOpacity(0.75),
+                                      colors: [
+                                        item["color"],
+                                        item["color"].withOpacity(0.75),
+                                      ],
+                                    ),
+
+                                    borderRadius: BorderRadius.circular(14),
+
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: item["color"].withOpacity(0.25),
+                                        blurRadius: 10,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                /// 🔥 IMAGE
+                                Container(
+                                  height: 50,
+                                  width: 50,
+
+                                  decoration: BoxDecoration(
+                                    color: AppColors.white,
+                                    shape: BoxShape.circle,
+
+                                    border: Border.all(
+                                      color: AppColors.border,
+                                      width: 1.2,
+                                    ),
+
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.04),
+                                        blurRadius: 6,
+                                      ),
                                     ],
                                   ),
 
-                                  borderRadius: BorderRadius.circular(14),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(3),
 
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: item["color"].withOpacity(0.25),
-                                      blurRadius: 10,
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              /// 🔥 IMAGE
-                              Container(
-                                height: 50,
-                                width: 50,
-
-                                decoration: BoxDecoration(
-                                  color: AppColors.white,
-                                  shape: BoxShape.circle,
-
-                                  border: Border.all(
-                                    color: AppColors.border,
-                                    width: 1.2,
-                                  ),
-
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.04),
-                                      blurRadius: 6,
-                                    ),
-                                  ],
-                                ),
-
-                                child: Padding(
-                                  padding: const EdgeInsets.all(3),
-
-                                  child: ClipOval(
-                                    child: Image.asset(
-                                      item["image"],
-                                      fit: BoxFit.cover,
+                                    child: ClipOval(
+                                      child: Image.asset(
+                                        item["image"],
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
 
-                              const SizedBox(height: 8),
+                                const SizedBox(height: 8),
 
-                              SizedBox(
-                                width: 60,
-
-                                child: Text(
-                                  item["name"],
-
-                                  textAlign: TextAlign.center,
-
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                SizedBox(
+                                  width: 75,
+                                  child: Text(
+                                    item["name"],
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          );
-                        }),
+                              ],
+                            );
+                          }),
+                        ),
                       ),
                     ),
                   ],
@@ -376,21 +424,14 @@ class _SurveyScreenState extends State<SurveyScreen> {
 
                 child: Column(
                   children: [
-                    reportTile(title: "Total Survey", value: "12,458"),
-
                     reportTile(
-                      title: "Complete Survey",
-                      value: "9,856 (79.2%)",
-                      valueColor: AppColors.green,
+                      title: selectedTab == 0
+                          ? "कुल उम्मीदवार सर्वेक्षण"
+                          : "कुल पार्टी सर्वेक्षण",
+                      value: "12,458",
                     ),
 
-                    reportTile(
-                      title: "Incomplete Survey",
-                      value: "2,602 (20.8%)",
-                      valueColor: AppColors.saffron,
-                    ),
-
-                    reportTile(title: "Today Survey", value: "326"),
+                    reportTile(title: "आज का सर्वेक्षण", value: "326"),
                   ],
                 ),
               ),
