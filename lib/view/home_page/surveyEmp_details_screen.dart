@@ -127,9 +127,9 @@ class SurveyEmployeeDetailsScreen extends StatelessWidget {
 
                   detailTile("पिता का नाम", employee.fatherName),
 
-                  detailTile("जॉइनिंग तिथि", employee.joiningDate),
+                  //   detailTile("जॉइनिंग तिथि", employee.joiningDate),
 
-                  detailTile("निर्माण तिथि", employee.createdDate),
+                  //   detailTile("निर्माण तिथि", employee.createdDate),
                 ],
               ),
 

@@ -4,9 +4,11 @@ import 'package:voter_survey_admin/controller/emp_assignvillage_controller.dart'
 import 'package:voter_survey_admin/view/home_page/emp_assignvillage_screen.dart';
 import 'package:voter_survey_admin/view/home_page/emp_todaysurvey_screen.dart';
 
+import '../../controller/assign_village_employe_controller.dart';
 import '../../controller/emp_status_controller.dart';
 import '../../controller/emp_todaysurvey_controller.dart';
 import '../../controller/emp_totalsurvey_controller.dart';
+import '../../controller/panchayat_list_controller.dart';
 import '../../utils/appColors.dart';
 import 'emp_total_survey_screen.dart';
 
@@ -28,6 +30,13 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
   final EmployeeStatusController statusController = Get.put(
     EmployeeStatusController(),
   );
+  final PanchayatController panchayatController =
+      Get.find<PanchayatController>();
+  final AssignVillageController assignVillageController = Get.put(
+    AssignVillageController(),
+  );
+
+  final RxList<int> selectedPanchayatIds = <int>[].obs;
   bool isActive = true;
 
   @override
@@ -117,14 +126,13 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
                 crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-
-                childAspectRatio: 1.50,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.45,
                 children: [
-                  Obx(() {
-                    return dashboardCard(
+                  /// Panchayat List
+                  Obx(
+                    () => dashboardCard(
                       title: "Today Survey Report",
                       subtitle: "आज का सर्वे",
                       value: emptodaySurveyController.totalTodaySurvey.value
@@ -139,9 +147,10 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
                           ),
                         );
                       },
-                    );
-                  }),
+                    ),
+                  ),
 
+                  /// Add Employee
                   Obx(
                     () => dashboardCard(
                       title: "Total Survey Report",
@@ -158,7 +167,18 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
                       },
                     ),
                   ),
+                  dashboardCard(
+                    title: "Assign Village",
+                    value: "-",
+                    subtitle: "गांव आवंटित करें",
+                    icon: Icons.location_city_rounded,
+                    color: const Color(0xFF10B981), // Emerald Green
+                    onTap: () {
+                      showAssignVillageDialog();
+                    },
+                  ),
 
+                  /// Add Employee
                   Obx(
                     () => dashboardCard(
                       title: "Allocated Village",
@@ -177,53 +197,7 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
                     ),
                   ),
 
-                  // Container(
-                  //   padding: const EdgeInsets.all(14),
-                  //   decoration: BoxDecoration(
-                  //     color: AppColors.white,
-                  //     borderRadius: BorderRadius.circular(22),
-                  //     boxShadow: [
-                  //       BoxShadow(
-                  //         color: Colors.black.withOpacity(0.03),
-                  //         blurRadius: 10,
-                  //       ),
-                  //     ],
-                  //   ),
-                  //   child: Column(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //     children: [
-                  //       const Text(
-                  //         "Member Status",
-                  //         style: TextStyle(
-                  //           fontSize: 14,
-                  //           fontWeight: FontWeight.w600,
-                  //         ),
-                  //       ),
-                  //
-                  //       Center(
-                  //         child: Switch(
-                  //           value: isActive,
-                  //           activeColor: Colors.green,
-                  //           onChanged: (value) {
-                  //             setState(() {
-                  //               isActive = value;
-                  //             });
-                  //           },
-                  //         ),
-                  //       ),
-                  //
-                  //       Text(
-                  //         isActive ? "Active" : "Deactive",
-                  //         style: TextStyle(
-                  //           color: isActive ? Colors.green : Colors.red,
-                  //           fontWeight: FontWeight.bold,
-                  //           fontSize: 16,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
+                  /// Booth List
                   Obx(
                     () => Container(
                       padding: const EdgeInsets.all(14),
@@ -329,69 +303,270 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
     );
   }
 
+  void showAssignVillageDialog() {
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          height: Get.height * .70,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: Column(
+            children: [
+              /// HEADER
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withOpacity(.12),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.location_city_rounded,
+                      color: Color(0xFF10B981),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  const Expanded(
+                    child: Text(
+                      "Assign Panchayat",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+
+                  IconButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              /// LIST
+              Expanded(
+                child: Obx(() {
+                  if (panchayatController.isLoading.value) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return ListView.separated(
+                    itemCount: panchayatController.panchayatList.length,
+
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+
+                    itemBuilder: (context, index) {
+                      final item = panchayatController.panchayatList[index];
+
+                      return Obx(() {
+                        final isSelected = selectedPanchayatIds.contains(
+                          item.id,
+                        );
+
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(18),
+                          onTap: () {
+                            if (isSelected) {
+                              selectedPanchayatIds.remove(item.id);
+                            } else {
+                              selectedPanchayatIds.add(item.id!);
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? const Color(0xFF10B981).withOpacity(.08)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(
+                                color: isSelected
+                                    ? const Color(0xFF10B981)
+                                    : Colors.grey.shade200,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Checkbox(
+                                  value: isSelected,
+                                  activeColor: const Color(0xFF10B981),
+                                  onChanged: (value) {
+                                    if (isSelected) {
+                                      selectedPanchayatIds.remove(item.id);
+                                    } else {
+                                      selectedPanchayatIds.add(item.id!);
+                                    }
+                                  },
+                                ),
+
+                                Expanded(
+                                  child: Text(
+                                    item.panchayatName ?? "",
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      });
+                    },
+                  );
+                }),
+              ),
+
+              const SizedBox(height: 15),
+
+              /// ASSIGN BUTTON
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  onPressed: () async {
+                    final success = await assignVillageController.assignVillage(
+                      surveyerId: widget.employeeId,
+                      villageIds: selectedPanchayatIds.toList(),
+                    );
+
+                    if (success) {
+                      Get.back();
+
+                      Get.snackbar("Success", "Village Assigned Successfully");
+                    }
+                  },
+                  child: const Text(
+                    "Assign Panchayat",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget dashboardCard({
     required String title,
     required String value,
     required String subtitle,
     required Color color,
     VoidCallback? onTap,
-
     IconData? icon,
     String? image,
   }) {
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
       onTap: onTap,
-
       child: Container(
         padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(22),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+
+          border: Border.all(color: color.withOpacity(.08), width: 1),
 
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10),
+            BoxShadow(
+              color: Colors.black.withOpacity(.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
           ],
         ),
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
           children: [
-            Text(
-              title,
+            /// TOP ROW
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
 
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textDark,
-              ),
+                Container(
+                  height: 28,
+                  width: 28,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 14,
+                    color: color,
+                  ),
+                ),
+              ],
             ),
 
+            const Spacer(),
+
+            /// BOTTOM CONTENT
             Row(
               children: [
                 Container(
-                  height: 45,
-                  width: 45,
+                  height: 54,
+                  width: 54,
 
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.10),
-                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [color.withOpacity(.20), color.withOpacity(.08)],
+                    ),
+
+                    borderRadius: BorderRadius.circular(16),
+
+                    border: Border.all(color: color.withOpacity(.15)),
                   ),
 
                   child: image != null
                       ? Padding(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(12),
                           child: Image.asset(image),
                         )
-                      : Icon(icon, color: color, size: 24),
+                      : Icon(icon, color: color, size: 28),
                 ),
 
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
 
                 Expanded(
                   child: Column(
@@ -399,29 +574,26 @@ class _EmpActionScreenState extends State<EmpActionScreen> {
 
                     children: [
                       Text(
-                        value,
-
+                        value.isEmpty ? "-" : value,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-
                         style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.textDark,
                         ),
                       ),
 
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
 
                       Text(
                         subtitle,
-
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-
                         style: const TextStyle(
-                          fontSize: 11.5,
+                          fontSize: 11,
                           color: AppColors.greyText,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],

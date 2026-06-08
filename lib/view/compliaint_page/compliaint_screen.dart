@@ -102,55 +102,60 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
           child: Column(
             children: [
               /// 🔥 TOP BAR
-              Row(
-                children: [
-                  /// 🔥 BACK BUTTON
-                  GestureDetector(
-                    onTap: () {
-                      Get.offAll(() => DashBoardScreen());
-                    },
+              Builder(
+                builder: (context) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    child: Container(
-                      padding: const EdgeInsets.all(9),
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Get.offAll(() => DashBoardScreen());
+                            },
 
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.all(9),
 
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(14),
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+
+                              child: const Icon(
+                                Icons.arrow_back_ios_rounded,
+                                size: 25,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Center(
+                            child: const Text(
+                              "Complaints",
+
+                              style: TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textDark,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-
-                      child: const Icon(
-                        Icons.arrow_back_ios_rounded,
-                        size: 20,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 CENTER TITLE
-                  Expanded(
-                    child: Center(
-                      child: const Text(
-                        "Complaints",
-
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 RIGHT SIDE SPACE
-                  const SizedBox(width: 38),
-                ],
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 22),

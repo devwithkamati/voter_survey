@@ -53,34 +53,68 @@ class LoginController extends GetxController {
 
     isLoading.value = false;
 
+    // if (response != null) {
+    //   loginModel = LoginModel.fromJson(response);
+    //
+    //   /// 🔥 SUCCESS
+    //   if (loginModel.status == "Success") {
+    //     /// 🔥 SAVE LOGIN SESSION
+    //     StorageService.saveLogin(true);
+    //     // Admin ID Save
+    //     StorageService.saveAdminId(loginModel.id ?? 0);
+    //     print("Login Admin ID => ${loginModel.id}");
+    //     print("Stored Admin ID => ${StorageService.getAdminId()}");
+    //     customSnackBar(
+    //       title: "Success",
+    //       message: loginModel.message ?? "",
+    //       backgroundColor: AppColors.green,
+    //     );
+    //
+    //     print("ADMIN NAME => ${loginModel.adminName}");
+    //
+    //     /// 🔥 NAVIGATE TO DASHBOARD
+    //     Get.offAll(() => const DashBoardScreen());
+    //   } else {
+    //     /// 🔥 API FAILED
+    //     customSnackBar(
+    //       title: "Error",
+    //       message: loginModel.message ?? "",
+    //       backgroundColor: AppColors.red,
+    //     );
+    //   }
+    // }
     if (response != null) {
+      print("FULL RESPONSE => $response");
+
       loginModel = LoginModel.fromJson(response);
 
-      /// 🔥 SUCCESS
+      print("STATUS => ${loginModel.status}");
+      print("ID => ${loginModel.id}");
+
       if (loginModel.status == "Success") {
-        /// 🔥 SAVE LOGIN SESSION
         StorageService.saveLogin(true);
+
+        StorageService.saveAdminId(loginModel.id ?? 0);
+
+        print("SAVED ADMIN ID => ${StorageService.getAdminId()}");
 
         customSnackBar(
           title: "Success",
-          message: loginModel.message ?? "",
+          message: loginModel.message ?? "Login Successfully",
           backgroundColor: AppColors.green,
         );
 
-        print("ADMIN NAME => ${loginModel.adminName}");
-
-        /// 🔥 NAVIGATE TO DASHBOARD
-        Get.offAll(() => const DashBoardScreen());
+        Future.delayed(const Duration(milliseconds: 800), () {
+          Get.offAll(() => const DashBoardScreen());
+        });
       } else {
-        /// 🔥 API FAILED
         customSnackBar(
           title: "Error",
-          message: loginModel.message ?? "",
+          message: loginModel.message ?? "Login Failed",
           backgroundColor: AppColors.red,
         );
       }
     } else {
-      /// 🔥 SERVER ERROR
       customSnackBar(
         title: "Error",
         message: "Something went wrong",

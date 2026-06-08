@@ -333,15 +333,6 @@ class _AddSurveyStaffScreenState extends State<AddSurveyStaffScreen> {
                 icon: Icons.upload_file,
                 child: Column(
                   children: [
-                    // uploadTile("User Image"),
-                    //
-                    // uploadTile("Aadhaar Image"),
-                    //
-                    // uploadTile("PAN Image"),
-                    //
-                    // uploadTile("Voter ID Image"),
-                    //
-                    // uploadTile("Driving License Image"),
                     uploadTile(
                       "User Image",
                       userImage,
@@ -374,28 +365,6 @@ class _AddSurveyStaffScreenState extends State<AddSurveyStaffScreen> {
               const SizedBox(height: 10),
 
               /// SAVE BUTTON
-              // SizedBox(
-              //   width: double.infinity,
-              //   height: 52,
-              //
-              //   child: Container(
-              //     decoration: BoxDecoration(
-              //       gradient: AppColors.primaryGradient,
-              //       borderRadius: BorderRadius.circular(18),
-              //     ),
-              //
-              //     child: const Center(
-              //       child: Text(
-              //         "Save Staff",
-              //         style: TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 18,
-              //           fontWeight: FontWeight.w700,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ),
               Obx(
                 () => SizedBox(
                   width: double.infinity,
@@ -518,44 +487,6 @@ class _AddSurveyStaffScreenState extends State<AddSurveyStaffScreen> {
       ),
     );
   }
-
-  // Widget customField({
-  //   required String hint,
-  //   required IconData icon,
-  //   int maxLines = 1,
-  // }) {
-  //   return Container(
-  //     margin: const EdgeInsets.only(bottom: 12),
-  //
-  //     child: TextFormField(
-  //       maxLines: maxLines,
-  //
-  //       decoration: InputDecoration(
-  //         hintText: hint,
-  //
-  //         prefixIcon: Icon(icon, color: AppColors.saffron),
-  //
-  //         filled: true,
-  //         fillColor: AppColors.background,
-  //
-  //         border: OutlineInputBorder(
-  //           borderRadius: BorderRadius.circular(18),
-  //           borderSide: BorderSide.none,
-  //         ),
-  //
-  //         enabledBorder: OutlineInputBorder(
-  //           borderRadius: BorderRadius.circular(18),
-  //           borderSide: BorderSide.none,
-  //         ),
-  //
-  //         focusedBorder: OutlineInputBorder(
-  //           borderRadius: BorderRadius.circular(18),
-  //           borderSide: const BorderSide(color: AppColors.saffron, width: 1.5),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget customField({
     required String hint,

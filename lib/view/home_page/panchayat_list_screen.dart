@@ -5,11 +5,24 @@ import 'package:voter_survey_admin/view/home_page/surveyby_village_screen.dart';
 import '../../controller/panchayat_list_controller.dart';
 import '../../utils/appColors.dart';
 
-class PanchayatListScreen extends StatelessWidget {
-  PanchayatListScreen({super.key});
+class PanchayatListScreen extends StatefulWidget {
+  const PanchayatListScreen({super.key});
 
-  // final PanchayatController controller = Get.put(PanchayatController());
+  @override
+  State<PanchayatListScreen> createState() => _PanchayatListScreenState();
+}
+
+class _PanchayatListScreenState extends State<PanchayatListScreen> {
   final PanchayatController controller = Get.find<PanchayatController>();
+
+  final TextEditingController searchController = TextEditingController();
+
+  String searchText = "";
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,48 +33,87 @@ class PanchayatListScreen extends StatelessWidget {
         child: Column(
           children: [
             /// HEADER
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Get.back(),
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(.03),
-                          blurRadius: 8,
+            Builder(
+              builder: (context) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                  children: [
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Get.back();
+                          },
+
+                          child: Container(
+                            padding: const EdgeInsets.all(9),
+
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(14),
+
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.03),
+                                  blurRadius: 8,
+                                ),
+                              ],
+                            ),
+
+                            child: const Icon(
+                              Icons.arrow_back_ios_rounded,
+                              size: 25,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        Center(
+                          child: const Text(
+                            "Panchayat List",
+
+                            style: TextStyle(
+                              fontSize: 23,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textDark,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_rounded,
-                      size: 20,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                ),
-
-                const Expanded(
-                  child: Center(
-                    child: Text(
-                      "Panchayat List",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 38),
-              ],
+                  ],
+                );
+              },
             ),
 
             const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                controller: searchController,
+                onChanged: (value) {
+                  setState(() {
+                    searchText = value.toLowerCase();
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: "Search Panchayat / State",
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
 
             /// LIST
             Expanded(
@@ -70,17 +122,34 @@ class PanchayatListScreen extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (controller.panchayatList.isEmpty) {
-                  return const Center(child: Text("No Panchayat Found"));
+                final filteredList = controller.panchayatList.where((item) {
+                  return (item.panchayatName ?? "").toLowerCase().contains(
+                        searchText,
+                      ) ||
+                      (item.stateName ?? "").toLowerCase().contains(
+                        searchText,
+                      ) ||
+                      (item.districtName ?? "").toLowerCase().contains(
+                        searchText,
+                      ) ||
+                      (item.blockName ?? "").toLowerCase().contains(searchText);
+                }).toList();
+
+                if (filteredList.isEmpty) {
+                  return const Center(
+                    child: Text("No Matching Panchayat Found"),
+                  );
                 }
 
                 return ListView.builder(
+                  // padding: const EdgeInsets.all(16),
                   padding: const EdgeInsets.all(16),
-
-                  itemCount: controller.panchayatList.length,
-
+                  itemCount: filteredList.length,
                   itemBuilder: (context, index) {
-                    final item = controller.panchayatList[index];
+                    final item = filteredList[index];
+                    //
+                    // itemBuilder: (context, index) {
+                    //   final item = controller.panchayatList[index];
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -109,14 +178,14 @@ class PanchayatListScreen extends StatelessWidget {
                             width: 60,
 
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(.1),
+                              color: const Color(0xFF00ACC1).withOpacity(.1),
 
                               borderRadius: BorderRadius.circular(18),
                             ),
 
                             child: const Icon(
-                              Icons.account_balance,
-                              color: AppColors.primary,
+                              Icons.list_alt_rounded,
+                              color: const Color(0xFF00ACC1),
                               size: 30,
                             ),
                           ),

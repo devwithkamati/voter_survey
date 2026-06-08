@@ -4,8 +4,25 @@ import 'package:get/get.dart';
 import '../../controller/today_survey_controllerdart.dart';
 import '../../utils/appColors.dart';
 
-class TodaySurveyScreen extends StatelessWidget {
+class TodaySurveyScreen extends StatefulWidget {
   const TodaySurveyScreen({super.key});
+
+  @override
+  State<TodaySurveyScreen> createState() => _TodaySurveyScreenState();
+}
+
+class _TodaySurveyScreenState extends State<TodaySurveyScreen> {
+  final TodaySurveyController controller = Get.find<TodaySurveyController>();
+
+  final TextEditingController searchController = TextEditingController();
+
+  String searchText = "";
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,58 +38,84 @@ class TodaySurveyScreen extends StatelessWidget {
           child: Column(
             children: [
               /// APP BAR
-              Row(
-                children: [
-                  /// 🔥 BACK BUTTON
-                  GestureDetector(
-                    onTap: () {
-                      Get.back();
-                    },
+              Builder(
+                builder: (context) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Get.back();
+                            },
 
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.all(9),
 
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(14),
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+
+                              child: const Icon(
+                                Icons.arrow_back_ios_rounded,
+                                size: 25,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Center(
+                            child: const Text(
+                              "Today Survey List",
+
+                              style: TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textDark,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-
-                      child: const Icon(
-                        Icons.arrow_back_ios_rounded,
-                        size: 20,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 CENTER TITLE
-                  Expanded(
-                    child: Center(
-                      child: const Text(
-                        "Today Survey List",
-
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 RIGHT SIDE SPACE
-                  const SizedBox(width: 38),
-                ],
+                    ],
+                  );
+                },
               ),
 
               SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      searchText = value.toLowerCase().trim();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Search Name / Mobile / Village",
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
 
               /// LIST
               Expanded(
@@ -80,8 +123,20 @@ class TodaySurveyScreen extends StatelessWidget {
                   if (controller.isLoading.value) {
                     return const Center(child: CircularProgressIndicator());
                   }
+                  final filteredList = controller.surveyList.where((item) {
+                    return (item.voterName ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (item.mobileNo ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (item.village ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (item.boothNo ?? "").toLowerCase().contains(searchText);
+                  }).toList();
 
-                  if (controller.surveyList.isEmpty) {
+                  if (filteredList.isEmpty) {
                     return const Center(child: Text("No Survey Found"));
                   }
 
@@ -89,10 +144,12 @@ class TodaySurveyScreen extends StatelessWidget {
                     onRefresh: () => controller.getTodaySurveyApi(),
 
                     child: ListView.builder(
-                      itemCount: controller.surveyList.length,
+                      //    itemCount: controller.surveyList.length,
+                      itemCount: filteredList.length,
 
                       itemBuilder: (context, index) {
-                        final item = controller.surveyList[index];
+                        //final item = controller.surveyList[index];
+                        final item = filteredList[index];
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 8),

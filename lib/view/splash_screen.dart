@@ -1,87 +1,3 @@
-// import 'package:flutter/material.dart';
-//
-// import '../utils/appColors.dart';
-//
-// class SplashScreen extends StatefulWidget {
-//   const SplashScreen({super.key});
-//
-//   @override
-//   State<SplashScreen> createState() => _SplashScreenState();
-// }
-//
-// class _SplashScreenState extends State<SplashScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     // checkLoginStatus();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Container(
-//         width: double.infinity,
-//
-//         /// 🔥 Saffron Gradient Background
-//         decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
-//
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             /// 🔥 Logo Container
-//             Container(
-//               height: 230,
-//               width: 230,
-//               padding: const EdgeInsets.all(20),
-//               decoration: BoxDecoration(
-//                 color: Colors.white.withOpacity(0.12),
-//                 shape: BoxShape.circle,
-//                 border: Border.all(
-//                   color: Colors.white.withOpacity(0.25),
-//                   width: 2,
-//                 ),
-//               ),
-//               child: Image.asset(
-//                 'assets/images/bjp_logo.webp',
-//                 fit: BoxFit.contain,
-//               ),
-//             ),
-//
-//             const SizedBox(height: 45),
-//
-//             /// 🔥 Main Title
-//             const Text(
-//               "Anil Tripathi",
-//               style: TextStyle(
-//                 fontSize: 35,
-//                 fontWeight: FontWeight.w800,
-//                 letterSpacing: 1,
-//                 color: AppColors.white,
-//               ),
-//             ),
-//
-//             const SizedBox(height: 10),
-//
-//             /// 🔥 Subtitle
-//             const Text(
-//               "Voter Survey Admin Panel",
-//               textAlign: TextAlign.center,
-//               style: TextStyle(
-//                 color: Colors.white70,
-//                 fontSize: 16,
-//                 fontWeight: FontWeight.w500,
-//               ),
-//             ),
-//
-//             const SizedBox(height: 100),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -128,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         width: double.infinity,
 
-        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+        decoration: const BoxDecoration(color: Colors.white),
 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -136,25 +52,25 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             /// 🔥 LOGO
             Container(
-              height: 230,
-              width: 230,
+              height: 320,
+              width: 320,
 
               padding: const EdgeInsets.all(20),
 
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.12),
+                color: Colors.white.withValues(alpha: 0.12),
 
                 shape: BoxShape.circle,
 
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.25),
+                  color: Colors.white.withValues(alpha: 0.25),
 
                   width: 2,
                 ),
               ),
 
               child: Image.asset(
-                'assets/images/bjp_logo.webp',
+                'assets/images/banner2.jpeg',
                 fit: BoxFit.contain,
               ),
             ),
@@ -169,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontSize: 35,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1,
-                color: AppColors.white,
+                color: AppColors.saffron,
               ),
             ),
 
@@ -180,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
               "Voter Survey Admin Panel",
 
               style: TextStyle(
-                color: Colors.white70,
+                color: Colors.grey,
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -188,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 100),
 
-            const CircularProgressIndicator(color: Colors.white),
+            const CircularProgressIndicator(color: AppColors.saffron),
           ],
         ),
       ),

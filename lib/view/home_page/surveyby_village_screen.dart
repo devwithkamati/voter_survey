@@ -23,6 +23,13 @@ class _SurveyByVillageScreenState extends State<SurveyByVillageScreen> {
   final SurveyByVillageController controller = Get.put(
     SurveyByVillageController(),
   );
+  final TextEditingController searchController = TextEditingController();
+  String searchText = "";
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -43,49 +50,96 @@ class _SurveyByVillageScreenState extends State<SurveyByVillageScreen> {
           child: Column(
             children: [
               /// APP BAR
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.back(),
+              Builder(
+                builder: (context) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Get.back();
+                            },
 
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.all(9),
 
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(.03),
-                            blurRadius: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(14),
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+
+                              child: const Icon(
+                                Icons.arrow_back_ios_rounded,
+                                size: 25,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Center(
+                            child: const Text(
+                              "Survey List",
+
+                              style: TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textDark,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-
-                      child: const Icon(Icons.arrow_back_ios_rounded, size: 20),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Survey List",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 40),
-                ],
+                    ],
+                  );
+                },
               ),
 
               const SizedBox(height: 15),
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      searchText = value.toLowerCase().trim();
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: "Search Voter / Mobile / Village",
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: searchText.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              searchController.clear();
+                              setState(() {
+                                searchText = "";
+                              });
+                            },
+                          )
+                        : null,
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+              ),
 
               /// LIST
               Expanded(
@@ -94,7 +148,26 @@ class _SurveyByVillageScreenState extends State<SurveyByVillageScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (controller.surveyList.isEmpty) {
+                  final filteredList = controller.surveyList.where((item) {
+                    final survey = item.surveyData;
+
+                    return (survey?.voterName ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (survey?.mobileNo ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (survey?.village ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (survey?.boothNo ?? "").toLowerCase().contains(
+                          searchText,
+                        ) ||
+                        (item.surveyEmployeeName ?? "").toLowerCase().contains(
+                          searchText,
+                        );
+                  }).toList();
+                  if (filteredList.isEmpty) {
                     return const Center(child: Text("No Survey Found"));
                   }
 
@@ -104,11 +177,11 @@ class _SurveyByVillageScreenState extends State<SurveyByVillageScreen> {
                     },
 
                     child: ListView.builder(
-                      itemCount: controller.surveyList.length,
-
+                      //  itemCount: controller.surveyList.length,
+                      itemCount: filteredList.length,
                       itemBuilder: (context, index) {
-                        final item = controller.surveyList[index];
-
+                        // final item = controller.surveyList[index];
+                        final item = filteredList[index];
                         final survey = item.surveyData;
 
                         return Container(

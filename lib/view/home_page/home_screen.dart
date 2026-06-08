@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:voter_survey_admin/view/home_page/add_survey_emp_screen.dart';
 import 'package:voter_survey_admin/view/home_page/booth_management_screen.dart';
-import 'package:voter_survey_admin/view/home_page/panchayat_list_screen.dart';
-import 'package:voter_survey_admin/view/home_page/survey_emp_screen.dart';
-import 'package:voter_survey_admin/view/home_page/today_survey_screen.dart';
+import 'package:voter_survey_admin/view/home_page/employee_management_screen.dart';
+import 'package:voter_survey_admin/view/home_page/report_management_screen.dart';
+import 'package:voter_survey_admin/view/profile_page/change_password_screen.dart';
+import 'package:voter_survey_admin/view/profile_page/profile_screen.dart';
+import 'package:voter_survey_admin/view/voting_page/voting_screen.dart';
 
+import '../../controller/admin_profile_controller.dart';
 import '../../controller/auth_controller.dart';
+import '../../controller/condidate_voting_controller.dart';
+import '../../controller/member_controller.dart';
 import '../../controller/panchayat_list_controller.dart';
 import '../../controller/survey_employee_controller.dart';
 import '../../controller/today_survey_controllerdart.dart';
 import '../../controller/total_survey_controller.dart';
 import '../../utils/appColors.dart';
+import '../compliaint_page/compliaint_screen.dart';
 import '../login_screen.dart';
+import '../profile_page/profile_info_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,15 +41,31 @@ class _HomeScreenState extends State<HomeScreen> {
   final PanchayatController panchayatController = Get.put(
     PanchayatController(),
   );
-
-  // final MemberController memberController = Get.find<MemberController>();
+  final CandidateVoteReportController condidatecontroller = Get.put(
+    CandidateVoteReportController(),
+  );
+  final MemberController memberController = Get.find<MemberController>();
+  final AdminProfileController profileController = Get.put(
+    AdminProfileController(),
+  );
 
   @override
   void initState() {
     super.initState();
-    //  memberController.getMemberApi();
+    loadDashboardData();
+  }
 
-    controller.getEmployeeApi();
+  Future<void> loadDashboardData() async {
+    await Future.wait(
+      [
+            memberController.getMemberApi(),
+            controller.getEmployeeApi(),
+            panchayatController.getPanchayatList(),
+            todaySurveyController.getTodaySurveyApi(),
+            condidatecontroller.fetchCandidateVoteReport(),
+          ]
+          as Iterable<Future<dynamic>>,
+    );
   }
 
   /// 🔥 DATE PICKER
@@ -117,28 +139,71 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: const CustomDrawer(),
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+        child: RefreshIndicator(
+          onRefresh: loadDashboardData,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              /// 🔥 TOP BAR
-              Builder(
-                builder: (context) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// 🔥 TOP BAR
+                Builder(
+                  builder: (context) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Scaffold.of(context).openDrawer();
-                            },
+                      children: [
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Scaffold.of(context).openDrawer();
+                              },
 
-                            child: Container(
+                              child: Container(
+                                padding: const EdgeInsets.all(9),
+
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(14),
+
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+
+                                child: const Icon(
+                                  Icons.menu_rounded,
+                                  size: 26,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            Center(
+                              child: const Text(
+                                "Dashboard",
+
+                                style: TextStyle(
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Stack(
+                          children: [
+                            Container(
                               padding: const EdgeInsets.all(9),
 
                               decoration: BoxDecoration(
@@ -154,274 +219,298 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
 
                               child: const Icon(
-                                Icons.menu_rounded,
+                                Icons.notifications_none_rounded,
                                 size: 26,
                                 color: AppColors.textDark,
                               ),
                             ),
-                          ),
 
-                          const SizedBox(width: 12),
+                            Positioned(
+                              right: 3,
+                              top: 3,
 
-                          Center(
-                            child: const Text(
-                              "Dashboard",
+                              child: Container(
+                                height: 16,
+                                width: 16,
 
-                              style: TextStyle(
-                                fontSize: 23,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textDark,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(9),
-
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(14),
-
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
-                                  blurRadius: 8,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.red,
+                                  shape: BoxShape.circle,
                                 ),
-                              ],
-                            ),
 
-                            child: const Icon(
-                              Icons.notifications_none_rounded,
-                              size: 26,
-                              color: AppColors.textDark,
-                            ),
-                          ),
+                                child: const Center(
+                                  child: Text(
+                                    "2",
 
-                          Positioned(
-                            right: 3,
-                            top: 3,
-
-                            child: Container(
-                              height: 16,
-                              width: 16,
-
-                              decoration: const BoxDecoration(
-                                color: AppColors.red,
-                                shape: BoxShape.circle,
-                              ),
-
-                              child: const Center(
-                                child: Text(
-                                  "2",
-
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 22),
+
+                /// 🔥 DATE CARD
+                GestureDetector(
+                  onTap: pickDate,
+
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(18),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                      children: [
+                        Text(
+                          formatDate(selectedDate),
+
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.all(7),
+
+                          decoration: BoxDecoration(
+                            color: AppColors.saffron.withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+
+                          child: const Icon(
+                            Icons.calendar_month_rounded,
+                            color: AppColors.saffron,
+                            size: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      /// MAIN MODULES
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.dashboard_customize_rounded,
+                            color: AppColors.saffron,
+                            size: 22,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Main Modules",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 24,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: .7,
+                        children: [
+                          phonePeItem(
+                            title: "Employee",
+                            icon: Icons.groups_rounded,
+                            color: const Color(0xff1976D2),
+                            onTap: () {
+                              Get.to(() => EmployeeManagementScreen());
+                            },
+                          ),
+
+                          phonePeItem(
+                            title: "Reports",
+                            icon: Icons.analytics_rounded,
+                            color: const Color(0xff2E7D32),
+                            onTap: () {
+                              Get.to(() => const ReportManagementScreen());
+                            },
+                          ),
+
+                          phonePeItem(
+                            title: "Voting",
+                            icon: Icons.how_to_vote_rounded,
+                            color: AppColors.saffron,
+                            onTap: () {
+                              Get.to(() => const VotingScreen());
+                            },
+                          ),
+
+                          phonePeItem(
+                            title: "Booth",
+                            icon: Icons.account_balance_rounded,
+                            color: const Color(0xff673AB7),
+                            onTap: () {
+                              Get.to(() => const BoothManagementScreen());
+                            },
                           ),
                         ],
                       ),
                     ],
-                  );
-                },
-              ),
-
-              const SizedBox(height: 22),
-
-              /// 🔥 DATE CARD
-              GestureDetector(
-                onTap: pickDate,
-
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(18),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                    children: [
-                      Text(
-                        formatDate(selectedDate),
-
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-
-                      Container(
-                        padding: const EdgeInsets.all(7),
-
-                        decoration: BoxDecoration(
-                          color: AppColors.saffron.withOpacity(0.10),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-
-                        child: const Icon(
-                          Icons.calendar_month_rounded,
-                          color: AppColors.saffron,
-                          size: 20,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
+                const SizedBox(height: 15),
 
-              const SizedBox(height: 18),
+                /// QUICK OVERVIEW
+                Row(
+                  children: [
+                    Icon(
+                      Icons.fast_forward,
+                      color: AppColors.saffron,
+                      size: 22,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      "Quick Overview",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
 
-              /// 🔥 DASHBOARD CARDS
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                const SizedBox(height: 12),
 
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+                /// 🔥 DASHBOARD CARDS
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1.45,
+                  children: [
+                    /// Total Employee
+                    Obx(
+                      () => dashboardCard(
+                        title: "Total Employee",
+                        value: controller.employeeList.length.toString(),
+                        subtitle: "कुल कर्मचारी",
+                        icon: Icons.groups_2_rounded,
+                        color: const Color(0xFF1976D2),
+                      ),
+                    ),
 
-                childAspectRatio: 1.50,
-                children: [
-                  Obx(
-                    () => dashboardCard(
-                      title: "Total Employee",
+                    /// Total Report
+                    Obx(
+                      () => dashboardCard(
+                        title: "Total Report",
+                        value: panchayatController.totalPanchayat.value
+                            .toString(),
+                        subtitle: "कुल सर्वे",
+                        icon: Icons.analytics_rounded,
+                        color: const Color(0xFF43A047),
+                      ),
+                    ),
 
-                      value: controller.employeeList.length.toString(),
+                    /// Today Report
+                    Obx(
+                      () => dashboardCard(
+                        title: "Today Report",
+                        value: todaySurveyController.todaySurveyCount.value
+                            .toString(),
+                        subtitle: "आज के सर्वे",
+                        icon: Icons.event_note_rounded,
+                        color: const Color(0xFFFF9800),
+                      ),
+                    ),
 
-                      subtitle: "कुल कर्मचारी",
+                    /// Voting
+                    Obx(
+                      () => dashboardCard(
+                        title: "Total Voting",
+                        value: condidatecontroller.totalVotes.value.toString(),
+                        subtitle: "कुल मतदान",
+                        icon: Icons.ballot_rounded,
+                        color: AppColors.saffron,
+                        onTap: () {
+                          // Get.to(() => VotingScreen());
+                        },
+                      ),
+                    ),
 
-                      icon: Icons.groups_rounded,
-
-                      color: AppColors.blue,
-
+                    /// Booth Management
+                    dashboardCard(
+                      title: "Total Booth",
+                      value: "6",
+                      subtitle: "कुल बूथ",
+                      icon: Icons.location_city_rounded,
+                      color: const Color(0xFF673AB7),
                       onTap: () {
-                        Get.to(() => SurveyEmployeeScreen());
+                        //   Get.to(() => const BoothManagementScreen());
                       },
                     ),
-                  ),
-                  dashboardCard(
-                    title: "Add Employee",
-                    subtitle: "नया पंजीकृत करें",
-                    value: "",
-                    icon: Icons.badge_rounded,
-                    color: AppColors.primary,
-                    onTap: () {
-                      Get.to(() => AddSurveyStaffScreen());
-                    },
-                  ),
-                  Obx(
-                    () => dashboardCard(
-                      title: "Total Report",
-                      value: panchayatController.totalPanchayat.value
-                          .toString(),
-                      subtitle: "कुल सर्वे",
-
-                      icon: Icons.list_alt_sharp,
-
-                      color: AppColors.green,
-
-                      onTap: () {
-                        //   Get.to(() => const TotalSurveyListScreen());
-                        Get.to(() => PanchayatListScreen());
-                      },
+                    Obx(
+                      () => dashboardCard(
+                        title: "Total Member",
+                        value: memberController.isLoading.value
+                            ? "..."
+                            : memberController.totalMember.value.toString(),
+                        subtitle: "कुल सदस्य",
+                        icon: Icons.event_note_rounded,
+                        color: AppColors.secondary,
+                      ),
                     ),
-                  ),
-                  Obx(
-                    () => dashboardCard(
-                      title: "Today Report",
-
-                      value: todaySurveyController.todaySurveyCount.value
-                          .toString(),
-                      subtitle: "आज के सर्वे",
-
-                      icon: Icons.today_rounded,
-
-                      color: AppColors.green,
-
-                      onTap: () {
-                        Get.to(() => const TodaySurveyScreen());
-                      },
-                    ),
-                  ),
-                  dashboardCard(
-                    title: "Voting",
-                    value: "4,256",
-                    subtitle: "कुल मतदान",
-                    icon: Icons.how_to_vote_rounded,
-                    color: AppColors.saffron,
-                  ),
-
-                  // Obx(
-                  //   () => dashboardCard(
-                  //     title: "Total Members",
-                  //     value: memberController.isLoading.value
-                  //         ? "..."
-                  //         : memberController.totalMember.value.toString(),
-                  //     subtitle: "कुल सदस्य",
-                  //     icon: Icons.people_alt,
-                  //     color: AppColors.secondary,
-                  //     onTap: () => Get.to(() => const MemberScreen()),
-                  //   ),
-                  // ),
-
-                  // dashboardCard(
-                  //   title: "New Members",
-                  //   value: "10",
-                  //   subtitle: "नए सदस्य",
-                  //   icon: Icons.person_add_outlined,
-                  //   color: AppColors.success,
-                  // ),
-
-                  // dashboardCard(
-                  //   title: "Complain and \n Suggestion",
-                  //   value: "2",
-                  //   subtitle: "कुल शिकायतें",
-                  //   icon: Icons.feedback_rounded,
-                  //   color: AppColors.yellow,
-                  // ),
-                  // dashboardCard(
-                  //   title: "Pending Complaint",
-                  //   value: "4",
-                  //   subtitle: "लंबित शिकायतें",
-                  //   icon: Icons.pending_actions_rounded,
-                  //   color: AppColors.red,
-                  // ),
-                  dashboardCard(
-                    title: "Booth Management",
-                    value: "6",
-                    subtitle: "बूथों का प्रबंधन",
-                    icon: Icons.account_balance_rounded,
-                    color: AppColors.darkBlue,
-                    onTap: () {
-                      Get.to(() => const BoothManagementScreen());
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 25),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 25),
+              ],
+            ),
           ),
         ),
       ),
@@ -429,69 +518,89 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// 🔥 DASHBOARD CARD
+
   Widget dashboardCard({
     required String title,
     required String value,
     required String subtitle,
     required Color color,
     VoidCallback? onTap,
-
     IconData? icon,
     String? image,
   }) {
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
       onTap: onTap,
-
       child: Container(
         padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(22),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+
+          border: Border.all(color: color.withOpacity(.08), width: 1),
 
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10),
+            BoxShadow(
+              color: Colors.black.withOpacity(.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
           ],
         ),
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
           children: [
-            Text(
-              title,
-
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textDark,
-              ),
+            /// TOP ROW
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
+              ],
             ),
 
+            const Spacer(),
+
+            /// BOTTOM CONTENT
             Row(
               children: [
                 Container(
-                  height: 45,
-                  width: 45,
+                  height: 54,
+                  width: 54,
 
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.10),
-                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [color.withOpacity(.20), color.withOpacity(.08)],
+                    ),
+
+                    borderRadius: BorderRadius.circular(16),
+
+                    border: Border.all(color: color.withOpacity(.15)),
                   ),
 
                   child: image != null
                       ? Padding(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(12),
                           child: Image.asset(image),
                         )
-                      : Icon(icon, color: color, size: 24),
+                      : Icon(icon, color: color, size: 28),
                 ),
 
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
 
                 Expanded(
                   child: Column(
@@ -499,29 +608,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     children: [
                       Text(
-                        value,
-
+                        value.isEmpty ? "-" : value,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-
                         style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
                           color: AppColors.textDark,
                         ),
                       ),
 
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
 
                       Text(
                         subtitle,
-
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-
                         style: const TextStyle(
-                          fontSize: 11.5,
+                          fontSize: 11,
                           color: AppColors.greyText,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -531,6 +637,86 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget dashboardItem({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: color.withOpacity(.15)),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 10),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 62,
+              width: 62,
+              decoration: BoxDecoration(
+                color: color.withOpacity(.10),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 32, color: color),
+            ),
+
+            const SizedBox(height: 14),
+
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget phonePeItem({
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 64,
+            width: 64,
+            decoration: BoxDecoration(
+              color: color.withOpacity(.10),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 30),
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }
@@ -545,30 +731,25 @@ class CustomDrawer extends StatefulWidget {
 
 class _CustomDrawerState extends State<CustomDrawer> {
   int selectedIndex = 0;
-
+  final AdminProfileController profileController =
+      Get.find<AdminProfileController>();
   final List<Map<String, dynamic>> drawerItems = [
-    {"icon": Icons.dashboard_rounded, "title": "Dashboard"},
+    {"icon": Icons.dashboard_customize_rounded, "title": "Dashboard"},
 
-    {"icon": Icons.assignment_rounded, "title": "Survey Management"},
+    {"icon": Icons.groups_rounded, "title": "Employee Management"},
 
-    {"icon": Icons.groups_rounded, "title": "Survey Employee"},
+    {"icon": Icons.analytics_rounded, "title": "Report Management"},
 
-    {"icon": Icons.how_to_vote_rounded, "title": "Candidate Preference"},
+    {"icon": Icons.how_to_vote_rounded, "title": "Voting Overview"},
 
-    {"icon": Icons.card_membership_rounded, "title": "Membership Management"},
+    {"icon": Icons.account_balance_rounded, "title": "Booth Management"},
 
-    {
-      "icon": Icons.report_gmailerrorred_rounded,
-      "title": "Complaint Management",
-    },
+    {"icon": Icons.campaign_rounded, "title": "Complaints Management"},
 
-    {"icon": Icons.newspaper_rounded, "title": "News & Updates"},
+    // {"icon": Icons.newspaper_rounded, "title": "News & Updates"},
+    {"icon": Icons.account_circle_rounded, "title": "Profile"},
 
-    {"icon": Icons.holiday_village_rounded, "title": "Booth Management"},
-
-    {"icon": Icons.bar_chart_rounded, "title": "Reports"},
-
-    {"icon": Icons.settings_rounded, "title": "Settings"},
+    {"icon": Icons.settings_suggest_rounded, "title": "Settings"},
 
     {"icon": Icons.logout_rounded, "title": "Logout"},
   ];
@@ -603,43 +784,57 @@ class _CustomDrawerState extends State<CustomDrawer> {
 
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 36,
-                  backgroundColor: Colors.white,
-
-                  child: Padding(
-                    padding: const EdgeInsets.all(6),
-
-                    child: Image.asset("assets/images/bjp_logo.webp"),
+                GestureDetector(
+                  onTap: () {
+                    Get.to(() => const PersonalInfoScreen());
+                  },
+                  child: CircleAvatar(
+                    radius: 36,
+                    backgroundColor: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: ClipOval(
+                        child: Image.asset(
+                          "assets/images/aniltri.jpeg",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
 
                 const SizedBox(width: 14),
 
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Expanded(
+                  child: Obx(() {
+                    final profile = profileController.profile.value;
 
-                    children: [
-                      Text(
-                        "Admin",
-
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          profile?.adminName ?? "Admin",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                      ),
 
-                      SizedBox(height: 2),
+                        const SizedBox(height: 4),
 
-                      Text(
-                        "Super Admin",
-
-                        style: TextStyle(fontSize: 14, color: Colors.white70),
-                      ),
-                    ],
-                  ),
+                        Text(
+                          profile?.adminId ?? "Super Admin",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ],
             ),
@@ -672,10 +867,52 @@ class _CustomDrawerState extends State<CustomDrawer> {
                     }
 
                     /// SURVEY EMPLOYEE
-                    if (item["title"] == "Survey Employee") {
+                    if (item["title"] == "Employee Management") {
                       Navigator.pop(context);
 
-                      Get.to(() => SurveyEmployeeScreen());
+                      Get.to(() => EmployeeManagementScreen());
+
+                      return;
+                    }
+                    if (item["title"] == "Report Management") {
+                      Navigator.pop(context);
+
+                      Get.to(() => ReportManagementScreen());
+
+                      return;
+                    }
+                    if (item["title"] == "Voting Overview") {
+                      Navigator.pop(context);
+
+                      Get.to(() => VotingScreen());
+
+                      return;
+                    }
+                    if (item["title"] == "Booth Management") {
+                      Navigator.pop(context);
+
+                      Get.to(() => BoothManagementScreen());
+
+                      return;
+                    }
+                    if (item["title"] == "Complaints Management") {
+                      Navigator.pop(context);
+
+                      Get.to(() => ComplaintScreen());
+
+                      return;
+                    }
+                    if (item["title"] == "Profile") {
+                      Navigator.pop(context);
+
+                      Get.to(() => ProfileScreen());
+
+                      return;
+                    }
+                    if (item["title"] == "Settings") {
+                      Navigator.pop(context);
+
+                      Get.to(() => ChangePasswordScreen());
 
                       return;
                     }

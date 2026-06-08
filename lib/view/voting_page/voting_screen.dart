@@ -2,6 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:voter_survey_admin/view/dashbord_screen.dart';
 
+import '../../controller/condidate_voting_controller.dart';
+import '../../controller/panchayat_voting_controller.dart';
+import '../../controller/party_voting_controller.dart';
+import '../../model/condidate_voting_model.dart';
+import '../../model/panchayat_voting_model.dart';
+import '../../model/party_voting_model.dart';
 import '../../utils/appColors.dart';
 
 class VotingScreen extends StatefulWidget {
@@ -12,141 +18,178 @@ class VotingScreen extends StatefulWidget {
 }
 
 class _VotingScreenState extends State<VotingScreen> {
+  final CandidateVoteReportController controller = Get.put(
+    CandidateVoteReportController(),
+  );
+  final PartyVoteReportController partyController = Get.put(
+    PartyVoteReportController(),
+  );
+  final PanchayatVoteReportController panchayatController = Get.put(
+    PanchayatVoteReportController(),
+  );
   int selectedTab = 0;
+  Future<void> refreshData() async {
+    await Future.wait([
+      controller.fetchCandidateVoteReport(),
+      partyController.fetchPartyVoteReport(),
+      panchayatController.fetchPanchayatVoteReport(),
+    ]);
+  }
 
-  final List<String> tabs = ["उम्मीदवार अनुसार", "पार्टी अनुसार"];
-  final List<Map<String, dynamic>> partiesData = [
-    {
-      "name": "भाजपा",
-      "votes": "2,500",
-      "percentage": "31.31%",
-      "height": 180.0,
-      "color": Colors.orange,
-      "image": "assets/images/bjp_logo.webp",
-    },
-    {
-      "name": "सपा",
-      "votes": "1,845",
-      "percentage": "23.10%",
-      "height": 140.0,
-      "color": Colors.red,
-      "image": "assets/images/anil.jpeg",
-    },
-    {
-      "name": "बसपा",
-      "votes": "1,756",
-      "percentage": "21.99%",
-      "height": 100.0,
-      "color": Colors.blue,
-      "image": "assets/images/anil.jpeg",
-    },
-    {
-      "name": "कांग्रेस",
-      "votes": "1,256",
-      "percentage": "15.73%",
-      "height": 70.0,
-      "color": Colors.green,
-      "image": "assets/images/anil.jpeg",
-    },
-    {
-      "name": "अन्य",
-      "votes": "636",
-      "percentage": "7.97%",
-      "height": 40.0,
-      "color": Colors.purple,
-      "image": "assets/images/anil.jpeg",
-    },
+  final TextEditingController searchController = TextEditingController();
+  final RxString searchQuery = ''.obs;
+
+  final List<String> tabs = [
+    "उम्मीदवार अनुसार",
+    "पार्टी अनुसार",
+    "पंचायत अनुसार",
   ];
-  final List<Map<String, dynamic>> candidates = [
-    {
-      "name": "अनिल त्रिपाठी",
-      "party": "BJP",
-      "votes": "4,256",
-      "percentage": "37.26%",
-      "height": 150.0,
-      "color": AppColors.saffron,
-      "image": "assets/images/aniltri.jpeg",
-    },
-    {
-      "name": "राकेश सिंह बघेल",
-      "party": "SP",
-      "votes": "2,845",
-      "percentage": "24.91%",
-      "height": 118.0,
-      "color": AppColors.green,
-      "image": "assets/images/anil.jpeg",
-    },
-    {
-      "name": "मदन नारायण सिंह",
-      "party": "BSP",
-      "votes": "1,756",
-      "percentage": "15.37%",
-      "height": 88.0,
-      "color": AppColors.blue,
-      "image": "assets/images/bjp_logo.webp",
-    },
-    {
-      "name": "मुगरेन्द्र राम त्रिपाठी",
-      "party": "INC",
-      "votes": "965",
-      "percentage": "8.45%",
-      "height": 60.0,
-      "color": Colors.purple,
-      "image": "assets/images/anil.jpeg",
-    },
-    {
-      "name": "पप्पू निषाद",
-      "party": "SP",
-      "votes": "965",
-      "percentage": "8.45%",
-      "height": 60.0,
-      "color": Colors.purple,
-      "image": "assets/images/anil.jpeg",
-    },
-    {
-      "name": "अन्य",
-      "party": "OTH",
-      "votes": "636",
-      "percentage": "5.57%",
-      "height": 42.0,
-      "color": AppColors.orange,
-      "image": "assets/images/bjp_logo.webp",
-    },
-  ];
+  DateTime selectedDate = DateTime.now();
+  Future<void> pickDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2024),
+      lastDate: DateTime(2030),
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  String get formattedDate {
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    return "${selectedDate.day} "
+        "${months[selectedDate.month - 1]} "
+        "${selectedDate.year}";
+  }
 
   @override
   Widget build(BuildContext context) {
-    final chartData = selectedTab == 0 ? candidates : partiesData;
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+        child: RefreshIndicator(
+          onRefresh: refreshData,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              /// 🔥 TOP BAR
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// 🔥 TOP BAR
+                Builder(
+                  builder: (context) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                children: [
-                  Row(
-                    children: [
-                      /// 🔥 BACK BUTTON
-                      GestureDetector(
+                      children: [
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Get.offAll(() => DashBoardScreen());
+                              },
+
+                              child: Container(
+                                padding: const EdgeInsets.all(9),
+
+                                decoration: BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: BorderRadius.circular(14),
+
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.03),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+
+                                child: const Icon(
+                                  Icons.arrow_back_ios_rounded,
+                                  size: 25,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            Center(
+                              child: const Text(
+                                "Voting Overview",
+
+                                style: TextStyle(
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 18),
+                sectionTitle("Date Filter", icon: Icons.calendar_month_rounded),
+
+                dateFilterCard(),
+                const SizedBox(height: 15),
+
+                Row(
+                  children: List.generate(tabs.length, (index) {
+                    bool isSelected = selectedTab == index;
+
+                    return Expanded(
+                      child: GestureDetector(
                         onTap: () {
-                          Get.offAll(() => DashBoardScreen());
+                          setState(() {
+                            selectedTab = index;
+                          });
                         },
 
-                        child: Container(
-                          padding: const EdgeInsets.all(9),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+
+                          //margin: EdgeInsets.only(right: index != 2 ? 10 : 0),
+                          margin: EdgeInsets.only(
+                            right: index != tabs.length - 1 ? 10 : 0,
+                          ),
+
+                          padding: const EdgeInsets.symmetric(vertical: 13),
 
                           decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(14),
+                            gradient: isSelected
+                                ? AppColors.primaryGradient
+                                : null,
+
+                            color: isSelected ? null : AppColors.white,
+
+                            borderRadius: BorderRadius.circular(16),
 
                             boxShadow: [
                               BoxShadow(
@@ -156,590 +199,865 @@ class _VotingScreenState extends State<VotingScreen> {
                             ],
                           ),
 
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            size: 20,
-                            color: AppColors.textDark,
+                          child: Center(
+                            child: Text(
+                              tabs[index],
+
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.textDark,
+                              ),
+                            ),
                           ),
                         ),
                       ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 15),
 
-                      const SizedBox(width: 12),
+                sectionTitle("Voting Summary", icon: Icons.how_to_vote_rounded),
 
-                      const Text(
-                        "Voting Overview",
+                totalVotingCard(),
+                const SizedBox(height: 10),
 
-                        style: TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                    ],
-                  ),
+                // sectionTitle("मतदाता वर्गीकरण", icon: Icons.groups_rounded),
+                //
+                // genderCards(),
+                // const SizedBox(height: 10),
+                if (selectedTab == 0 || selectedTab == 1) ...[
+                  sectionTitle("मतदाता वर्गीकरण", icon: Icons.groups_rounded),
+
+                  genderCards(),
+                  const SizedBox(height: 10),
+                ],
+
+                if (selectedTab == 2) ...[
+                  sectionTitle("पंचायत खोजें", icon: Icons.search),
 
                   Container(
-                    padding: const EdgeInsets.all(9),
-
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(14),
-
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 8,
-                        ),
-                      ],
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                     ),
-
-                    child: const Icon(
-                      Icons.filter_alt_outlined,
-                      size: 22,
-                      color: AppColors.textDark,
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: (value) {
+                        searchQuery.value = value;
+                      },
+                      decoration: const InputDecoration(
+                        hintText: "पंचायत नाम खोजें...",
+                        border: InputBorder.none,
+                        prefixIcon: Icon(Icons.search),
+                      ),
                     ),
                   ),
+
+                  const SizedBox(height: 10),
                 ],
-              ),
-
-              const SizedBox(height: 24),
-
-              /// 🔥 TAB BUTTONS
-              Row(
-                children: List.generate(tabs.length, (index) {
-                  bool isSelected = selectedTab == index;
-
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedTab = index;
-                        });
-                      },
-
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 250),
-
-                        //margin: EdgeInsets.only(right: index != 2 ? 10 : 0),
-                        margin: EdgeInsets.only(
-                          right: index != tabs.length - 1 ? 10 : 0,
-                        ),
-
-                        padding: const EdgeInsets.symmetric(vertical: 13),
-
-                        decoration: BoxDecoration(
-                          gradient: isSelected
-                              ? AppColors.primaryGradient
-                              : null,
-
-                          color: isSelected ? null : AppColors.white,
-
-                          borderRadius: BorderRadius.circular(16),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
-                              blurRadius: 8,
-                            ),
-                          ],
-                        ),
-
-                        child: Center(
-                          child: Text(
-                            tabs[index],
-
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppColors.textDark,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 22),
-
-              /// 🔥 CHART CARD
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(18),
-
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(24),
-
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 10,
-                    ),
-                  ],
+                // if (selectedTab == 2) ...[
+                //   sectionTitle("पंचायत खोजें", icon: Icons.search),
+                //
+                //   Container(
+                //     padding: const EdgeInsets.symmetric(horizontal: 12),
+                //     decoration: BoxDecoration(
+                //       color: Colors.white,
+                //       borderRadius: BorderRadius.circular(16),
+                //     ),
+                //     child: TextField(
+                //       controller: searchController,
+                //       onChanged: (value) {
+                //         searchQuery.value = value;
+                //       },
+                //       decoration: const InputDecoration(
+                //         hintText: "पंचायत नाम खोजें...",
+                //         border: InputBorder.none,
+                //         prefixIcon: Icon(Icons.search),
+                //       ),
+                //     ),
+                //   ),
+                //
+                //   const SizedBox(height: 10),
+                // ],
+                sectionTitle(
+                  selectedTab == 0
+                      ? "उम्मीदवार अनुसार मतदान"
+                      : selectedTab == 1
+                      ? "पार्टी अनुसार मतदान"
+                      : "पंचायत अनुसार मतदान",
+                  icon: Icons.leaderboard_rounded,
                 ),
 
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Text(
-                      selectedTab == 0
-                          ? "कौन से उम्मीदवार को कितने लोग पसंद कर रहे हैं"
-                          : "कौन सी पार्टी को कितने लोग पसंद कर रहे हैं",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    /// 🔥 BAR CHART
-                    SizedBox(
-                      height: 320,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: List.generate(chartData.length, (index) {
-                            final item = chartData[index];
-
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-
-                              children: [
-                                Text(
-                                  item["votes"],
-
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 10),
-
-                                Container(
-                                  width: 38,
-                                  height: item["height"],
-
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-
-                                      colors: [
-                                        item["color"],
-                                        item["color"].withOpacity(0.75),
-                                      ],
-                                    ),
-
-                                    borderRadius: BorderRadius.circular(14),
-
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: item["color"].withOpacity(0.25),
-                                        blurRadius: 10,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                /// 🔥 IMAGE
-                                Container(
-                                  height: 50,
-                                  width: 50,
-
-                                  decoration: BoxDecoration(
-                                    color: AppColors.white,
-                                    shape: BoxShape.circle,
-
-                                    border: Border.all(
-                                      color: AppColors.border,
-                                      width: 1.2,
-                                    ),
-
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.04),
-                                        blurRadius: 6,
-                                      ),
-                                    ],
-                                  ),
-
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(3),
-
-                                    child: ClipOval(
-                                      child: Image.asset(
-                                        item["image"],
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-
-                                const SizedBox(height: 8),
-
-                                SizedBox(
-                                  width: 75,
-                                  child: Text(
-                                    item["name"],
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              /// 🔥 TOP CANDIDATE LIST
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      selectedTab == 0
-                          ? "Top Candidates (By Votes)"
-                          : "Top Parties (By Votes)",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columnSpacing: 25,
-                        headingRowColor: MaterialStateProperty.all(
-                          Colors.grey.shade100,
-                        ),
-
-                        columns: selectedTab == 0
-                            ? const [
-                                DataColumn(label: Text("Rank")),
-                                DataColumn(label: Text("Candidate")),
-                                DataColumn(label: Text("Party")),
-                                DataColumn(label: Text("Votes")),
-                                DataColumn(label: Text("Percentage")),
-                              ]
-                            : const [
-                                DataColumn(label: Text("Rank")),
-                                DataColumn(label: Text("Party Name")),
-                                DataColumn(label: Text("Votes")),
-                                DataColumn(label: Text("Percentage")),
-                              ],
-
-                        rows: selectedTab == 0
-                            ? candidates.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                var item = entry.value;
-
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text("${index + 1}")),
-                                    DataCell(Text(item["name"])),
-                                    DataCell(
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: item["color"],
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          item["party"] ?? "BJP",
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(Text(item["votes"])),
-                                    DataCell(Text(item["percentage"] ?? "20%")),
-                                  ],
-                                );
-                              }).toList()
-                            : partiesData.asMap().entries.map((entry) {
-                                int index = entry.key;
-                                var item = entry.value;
-
-                                return DataRow(
-                                  cells: [
-                                    DataCell(Text("${index + 1}")),
-                                    DataCell(Text(item["name"])),
-                                    DataCell(Text(item["votes"])),
-                                    DataCell(Text(item["percentage"] ?? "20%")),
-                                  ],
-                                );
-                              }).toList(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // Container(
-              //   width: double.infinity,
-              //   padding: const EdgeInsets.all(16),
-              //   decoration: BoxDecoration(
-              //     color: AppColors.white,
-              //     borderRadius: BorderRadius.circular(24),
-              //     boxShadow: [
-              //       BoxShadow(
-              //         color: Colors.black.withOpacity(0.03),
-              //         blurRadius: 10,
-              //       ),
-              //     ],
-              //   ),
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //       Text(
-              //         selectedTab == 0
-              //             ? "Top Candidates (By Votes)"
-              //             : "Top Parties (By Votes)",
-              //         style: const TextStyle(
-              //           fontSize: 18,
-              //           fontWeight: FontWeight.bold,
-              //         ),
-              //       ),
-              //
-              //       const SizedBox(height: 15),
-              //
-              //       /// Header
-              //       Container(
-              //         padding: const EdgeInsets.symmetric(
-              //           vertical: 12,
-              //           horizontal: 8,
-              //         ),
-              //         decoration: BoxDecoration(
-              //           color: Colors.grey.shade100,
-              //           borderRadius: BorderRadius.circular(12),
-              //         ),
-              //         child: const Row(
-              //           children: [
-              //             Expanded(
-              //               flex: 1,
-              //               child: Text(
-              //                 "Rank",
-              //                 style: TextStyle(fontWeight: FontWeight.bold),
-              //               ),
-              //             ),
-              //             Expanded(
-              //               flex: 3,
-              //               child: Text(
-              //                 "Name",
-              //                 style: TextStyle(fontWeight: FontWeight.bold),
-              //               ),
-              //             ),
-              //             Expanded(
-              //               flex: 2,
-              //               child: Text(
-              //                 "Votes",
-              //                 style: TextStyle(fontWeight: FontWeight.bold),
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //
-              //       const SizedBox(height: 8),
-              //
-              //       ListView.builder(
-              //         shrinkWrap: true,
-              //         physics: const NeverScrollableScrollPhysics(),
-              //         itemCount: chartData.length,
-              //         itemBuilder: (context, index) {
-              //           final item = chartData[index];
-              //
-              //           return Container(
-              //             margin: const EdgeInsets.only(bottom: 10),
-              //             padding: const EdgeInsets.all(12),
-              //             decoration: BoxDecoration(
-              //               border: Border.all(color: Colors.grey.shade200),
-              //               borderRadius: BorderRadius.circular(14),
-              //             ),
-              //             child: Row(
-              //               children: [
-              //                 Expanded(
-              //                   flex: 1,
-              //                   child: Text(
-              //                     "${index + 1}",
-              //                     style: const TextStyle(
-              //                       fontWeight: FontWeight.bold,
-              //                     ),
-              //                   ),
-              //                 ),
-              //
-              //                 Expanded(
-              //                   flex: 3,
-              //                   child: Row(
-              //                     children: [
-              //                       CircleAvatar(
-              //                         radius: 18,
-              //                         backgroundImage: AssetImage(
-              //                           item["image"],
-              //                         ),
-              //                       ),
-              //
-              //                       const SizedBox(width: 10),
-              //
-              //                       Expanded(
-              //                         child: Text(
-              //                           item["name"],
-              //                           maxLines: 1,
-              //                           overflow: TextOverflow.ellipsis,
-              //                           style: const TextStyle(
-              //                             fontWeight: FontWeight.w600,
-              //                           ),
-              //                         ),
-              //                       ),
-              //                     ],
-              //                   ),
-              //                 ),
-              //
-              //                 Expanded(
-              //                   flex: 2,
-              //                   child: Text(
-              //                     item["votes"],
-              //                     textAlign: TextAlign.end,
-              //                     style: const TextStyle(
-              //                       fontWeight: FontWeight.bold,
-              //                     ),
-              //                   ),
-              //                 ),
-              //               ],
-              //             ),
-              //           );
-              //         },
-              //       ),
-              //     ],
-              //   ),
-              // ),
-
-              // const SizedBox(height: 12),
-              //
-              // /// 🔥 REPORT CARD
-              // Container(
-              //   width: double.infinity,
-              //   padding: const EdgeInsets.symmetric(
-              //     horizontal: 18,
-              //     vertical: 10,
-              //   ),
-              //
-              //   decoration: BoxDecoration(
-              //     color: AppColors.white,
-              //     borderRadius: BorderRadius.circular(24),
-              //
-              //     boxShadow: [
-              //       BoxShadow(
-              //         color: Colors.black.withOpacity(0.03),
-              //         blurRadius: 10,
-              //       ),
-              //     ],
-              //   ),
-              //
-              //   child: Column(
-              //     children: [
-              //       reportTile(
-              //         title: selectedTab == 0
-              //             ? "कुल उम्मीदवार सर्वेक्षण"
-              //             : "कुल पार्टी सर्वेक्षण",
-              //         value: "12,458",
-              //       ),
-              //
-              //       reportTile(title: "आज का सर्वेक्षण", value: "326"),
-              //     ],
-              //   ),
-              // ),
-              const SizedBox(height: 25),
-            ],
+                voteList(),
+                const SizedBox(height: 25),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  /// 🔥 REPORT TILE
-  Widget reportTile({
-    required String title,
-    required String value,
-
-    Color valueColor = AppColors.textDark,
-  }) {
+  Widget premiumVoteTile(
+    Map<String, dynamic> item,
+    int index,
+    bool candidateMode,
+  ) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 18),
-
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColors.border.withOpacity(0.6)),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
       ),
-
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
         children: [
-          Text(
-            title,
-
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textDark,
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: item["color"].withOpacity(.15),
+            child: Text(
+              "${index + 1}",
+              style: TextStyle(
+                color: item["color"],
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
 
-          Text(
-            value,
+          const SizedBox(width: 12),
 
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: valueColor,
+          CircleAvatar(radius: 24, backgroundImage: AssetImage(item["image"])),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item["name"],
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                if (candidateMode)
+                  Text(
+                    item["party"] ?? "",
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            flex: 2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item["votes"],
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 6),
+
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value:
+                        double.parse(item["percentage"].replaceAll("%", "")) /
+                        100,
+                    minHeight: 6,
+                    color: item["color"],
+                    backgroundColor: Colors.grey.shade200,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: item["color"].withOpacity(.10),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              item["percentage"],
+              style: TextStyle(
+                color: item["color"],
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget genderCard(
+    String title,
+    String value,
+    String percent,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(.08),
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ),
+
+          const SizedBox(height: 10),
+
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            value,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+          ),
+
+          const SizedBox(height: 4),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: color.withOpacity(.10),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              percent,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w700,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget sectionTitle(String title, {IconData? icon}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 8),
+      child: Row(
+        children: [
+          if (icon != null) Icon(icon, color: AppColors.saffron, size: 20),
+
+          if (icon != null) const SizedBox(width: 8),
+
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget genderCards() {
+    return Obx(() {
+      if (selectedTab == 0) {
+        final summary = controller.summary.value;
+
+        if (summary == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return buildGenderCards(
+          summary.male.count,
+          summary.male.percentage,
+          summary.female.count,
+          summary.female.percentage,
+          summary.other.count,
+          summary.other.percentage,
+        );
+      }
+
+      if (selectedTab == 1) {
+        final summary = partyController.summary.value;
+
+        if (summary == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return buildGenderCards(
+          summary.male.count,
+          summary.male.percentage,
+          summary.female.count,
+          summary.female.percentage,
+          summary.other.count,
+          summary.other.percentage,
+        );
+      }
+
+      final summary = panchayatController.summary.value;
+
+      if (summary == null) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      return buildGenderCards(
+        summary.male.count,
+        summary.male.percentage,
+        summary.female.count,
+        summary.female.percentage,
+        summary.other.count,
+        summary.other.percentage,
+      );
+    });
+  }
+
+  Widget premiumPanchayatTile(PanchayatVoteModel item) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 12),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.saffron.withOpacity(.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.location_city,
+                  color: AppColors.saffron,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Text(
+                  item.panchayatName,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "${item.total}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          ...item.partyVotes.entries.map((entry) {
+            final vote = (entry.value as num).toDouble();
+
+            // final percent = item.total == 0 ? 0 : vote / item.total;
+            final double percent = item.total == 0
+                ? 0.0
+                : vote / item.total.toDouble();
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          entry.key,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+
+                      Text(
+                        entry.value.toString(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: percent,
+                      minHeight: 8,
+                      backgroundColor: Colors.grey.shade200,
+                      color: AppColors.saffron,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget buildGenderCards(
+    int maleCount,
+    double malePercentage,
+    int femaleCount,
+    double femalePercentage,
+    int otherCount,
+    double otherPercentage,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: genderCard(
+            "पुरुष",
+            maleCount.toString(),
+            "$malePercentage%",
+            Icons.man_rounded,
+            Colors.blue,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: genderCard(
+            "महिला",
+            femaleCount.toString(),
+            "$femalePercentage%",
+            Icons.woman_rounded,
+            Colors.pink,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: genderCard(
+            "अन्य",
+            otherCount.toString(),
+            "$otherPercentage%",
+            Icons.person,
+            Colors.orange,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget voteList() {
+    // Candidate
+    if (selectedTab == 0) {
+      return Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: controller.candidateList.length,
+          itemBuilder: (context, index) {
+            return premiumCandidateTile(controller.candidateList[index]);
+          },
+        );
+      });
+    }
+    // Party
+    else if (selectedTab == 1) {
+      return Obx(() {
+        if (partyController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: partyController.partyList.length,
+          itemBuilder: (context, index) {
+            return premiumPartyTile(partyController.partyList[index]);
+          },
+        );
+      });
+    }
+    // Panchayat
+    // else {
+    //   return Obx(() {
+    //     if (panchayatController.isLoading.value) {
+    //       return const Center(child: CircularProgressIndicator());
+    //     }
+    //
+    //     return ListView.builder(
+    //       shrinkWrap: true,
+    //       physics: const NeverScrollableScrollPhysics(),
+    //       itemCount: panchayatController.panchayatList.length,
+    //       itemBuilder: (context, index) {
+    //         return premiumPanchayatTile(
+    //           panchayatController.panchayatList[index],
+    //         );
+    //       },
+    //     );
+    //   });
+    // }
+    else {
+      return Obx(() {
+        if (panchayatController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        final filteredList = panchayatController.panchayatList.where((item) {
+          return item.panchayatName.toLowerCase().contains(
+            searchQuery.value.toLowerCase(),
+          );
+        }).toList();
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: filteredList.length,
+          itemBuilder: (context, index) {
+            return premiumPanchayatTile(filteredList[index]);
+          },
+        );
+      });
+    }
+  }
+
+  Widget premiumPartyTile(PartyVoteModel item) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: AppColors.blue.withOpacity(.15),
+            child: Text(
+              item.rank.toString(),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.partyName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                Text(
+                  "${item.votes} Votes",
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            flex: 2,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: item.votePercentage / 100,
+                minHeight: 6,
+                color: AppColors.blue,
+                backgroundColor: Colors.grey.shade200,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.blue.withOpacity(.10),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "${item.votePercentage}%",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget premiumCandidateTile(CandidateVoteModel item) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: AppColors.saffron.withOpacity(.15),
+            child: Text(
+              item.rank.toString(),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          //
+          // CircleAvatar(
+          //   radius: 24,
+          //   backgroundImage: AssetImage(getCandidateImage(item.rank)),
+          // ),
+          const SizedBox(width: 12),
+
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.candidateName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                Text(
+                  "${item.votes} Votes",
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            flex: 2,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: item.votePercentage / 100,
+                minHeight: 6,
+                color: AppColors.saffron,
+                backgroundColor: Colors.grey.shade200,
+              ),
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.saffron.withOpacity(.10),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              "${item.votePercentage}%",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget totalVotingCard() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.saffron.withOpacity(.12), Colors.white],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.saffron.withOpacity(.15)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.saffron.withOpacity(.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.saffron.withOpacity(.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    "कुल मतदान",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.saffron,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Obx(() {
+                  final totalVotes = selectedTab == 0
+                      ? controller.totalVotes.value
+                      : selectedTab == 1
+                      ? partyController.totalVotes.value
+                      : panchayatController.totalVotes.value;
+
+                  return Text(
+                    totalVotes.toString(),
+                    style: const TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textDark,
+                    ),
+                  );
+                }),
+
+                const SizedBox(height: 6),
+
+                const Text(
+                  "Total Votes Recorded",
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            height: 70,
+            width: 70,
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.saffron.withOpacity(.30),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.how_to_vote_rounded,
+              color: Colors.white,
+              size: 34,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget dateFilterCard() {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: pickDate,
+
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_month_rounded, color: AppColors.saffron),
+
+            const SizedBox(width: 10),
+
+            Expanded(
+              child: Text(
+                "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}",
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Colors.grey.shade600,
+            ),
+          ],
+        ),
       ),
     );
   }

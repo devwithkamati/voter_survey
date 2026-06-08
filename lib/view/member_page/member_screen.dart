@@ -14,21 +14,10 @@ class MemberScreen extends StatefulWidget {
 }
 
 class _MemberScreenState extends State<MemberScreen> {
-  // final MemberController controller = Get.put(MemberController());
   final MemberController controller = Get.find<MemberController>();
   final TextEditingController searchController = TextEditingController();
 
   List<MemberData> filteredList = [];
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //
-  //   ever(controller.memberList, (callback) {
-  //     filteredList = controller.memberList.toList();
-  //     setState(() {});
-  //   });
-  // }
 
   @override
   void initState() {
@@ -66,91 +55,69 @@ class _MemberScreenState extends State<MemberScreen> {
     return Scaffold(
       backgroundColor: AppColors.lightBackground,
 
-      floatingActionButton: Container(
-        height: 62,
-        width: 62,
-
-        decoration: BoxDecoration(
-          gradient: AppColors.primaryGradient,
-          shape: BoxShape.circle,
-
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.saffron.withOpacity(0.35),
-              blurRadius: 14,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-
-        child: FloatingActionButton(
-          onPressed: () {},
-
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-
-          child: const Icon(Icons.add_rounded, size: 34, color: Colors.white),
-        ),
-      ),
-
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
 
           child: Column(
             children: [
-              Row(
-                children: [
-                  /// 🔥 BACK BUTTON
-                  GestureDetector(
-                    onTap: () {
-                      Get.offAll(() => DashBoardScreen());
-                    },
+              Builder(
+                builder: (context) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    child: Container(
-                      padding: const EdgeInsets.all(9),
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Get.offAll(() => DashBoardScreen());
+                            },
 
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(14),
+                            child: Container(
+                              padding: const EdgeInsets.all(9),
 
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.03),
-                            blurRadius: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.white,
+                                borderRadius: BorderRadius.circular(14),
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.03),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+
+                              child: const Icon(
+                                Icons.arrow_back_ios_rounded,
+                                size: 25,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          Center(
+                            child: const Text(
+                              "Members",
+
+                              style: TextStyle(
+                                fontSize: 23,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textDark,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-
-                      child: const Icon(
-                        Icons.arrow_back_ios_rounded,
-                        size: 20,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 CENTER TITLE
-                  Expanded(
-                    child: Center(
-                      child: const Text(
-                        "Members",
-
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  /// 🔥 RIGHT SIDE SPACE
-                  const SizedBox(width: 38),
-                ],
+                    ],
+                  );
+                },
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 22),
 
               /// ================= SEARCH BAR =================
               Row(

@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:voter_survey_admin/view/home_page/add_booth_screen.dart';
 import 'package:voter_survey_admin/view/home_page/panchayat_list_screen.dart';
+import 'package:voter_survey_admin/view/home_page/today_survey_screen.dart';
 
-import '../../controller/booth_list_controller.dart';
 import '../../controller/panchayat_list_controller.dart';
+import '../../controller/today_survey_controllerdart.dart';
+import '../../controller/total_survey_controller.dart';
 import '../../utils/appColors.dart';
-import 'add_panchayat_screen.dart';
-import 'booth_list_screen.dart';
 
-class BoothManagementScreen extends StatefulWidget {
-  const BoothManagementScreen({super.key});
+class ReportManagementScreen extends StatefulWidget {
+  const ReportManagementScreen({super.key});
 
   @override
-  State<BoothManagementScreen> createState() => _BoothManagementScreenState();
+  State<ReportManagementScreen> createState() => _ReportManagementScreenState();
 }
 
-class _BoothManagementScreenState extends State<BoothManagementScreen> {
+class _ReportManagementScreenState extends State<ReportManagementScreen> {
+  final TotalSurveyController surveyController = Get.put(
+    TotalSurveyController(),
+  );
+  final TodaySurveyController todaySurveyController = Get.put(
+    TodaySurveyController(),
+  );
   final PanchayatController panchayatController = Get.put(
     PanchayatController(),
   );
-  final BoothController boothController = Get.put(BoothController());
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,9 +75,10 @@ class _BoothManagementScreenState extends State<BoothManagementScreen> {
                           ),
 
                           const SizedBox(width: 12),
+
                           Center(
                             child: const Text(
-                              "Booth Management",
+                              "Report Management",
 
                               style: TextStyle(
                                 fontSize: 23,
@@ -89,8 +93,10 @@ class _BoothManagementScreenState extends State<BoothManagementScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 18),
 
+              const SizedBox(height: 22),
+
+              /// QUICK OVERVIEW
               Row(
                 children: [
                   Icon(Icons.fast_forward, color: AppColors.saffron, size: 22),
@@ -113,77 +119,34 @@ class _BoothManagementScreenState extends State<BoothManagementScreen> {
                 mainAxisSpacing: 10,
                 childAspectRatio: 1.45,
                 children: [
-                  /// Panchayat List
-                  dashboardCard(
-                    title: "Add Panchayat",
-                    value: "-",
-                    subtitle: "पंचायत जोड़ें",
-                    icon: Icons.account_balance_rounded,
-                    color: AppColors.primary,
-                    onTap: () => Get.to(() => AddPanchayatScreen()),
-                  ),
-
-                  /// Add Employee
+                  /// Total Report
                   Obx(
                     () => dashboardCard(
-                      title: "Panchayat List",
+                      title: "Total Report",
                       value: panchayatController.totalPanchayat.value
                           .toString(),
-                      subtitle: "कुल पंचायत सूची",
-                      icon: Icons.list_alt_rounded,
-                      color: const Color(0xFF00ACC1),
-                      onTap: () => Get.to(() => PanchayatListScreen()),
-                    ),
-                  ),
-
-                  /// Add Employee
-                  dashboardCard(
-                    title: "Add Booth",
-                    value: "-",
-                    subtitle: "नया बूथ जोड़ें",
-                    icon: Icons.add_home_work_rounded,
-                    color: AppColors.secondary,
-                    onTap: () {
-                      Get.to(() => AddBoothScreen());
-                    },
-                  ),
-
-                  /// Booth List
-                  Obx(
-                    () => dashboardCard(
-                      title: "Booth List",
-                      value: boothController.totalBooth.value.toString(),
-                      subtitle: "कुल बूथ सूची",
-                      icon: Icons.apartment_rounded,
-                      color: AppColors.success,
+                      subtitle: "कुल सर्वे",
+                      icon: Icons.analytics_rounded,
+                      color: const Color(0xFF43A047),
                       onTap: () {
-                        Get.to(() => BoothListScreen());
+                        Get.to(() => PanchayatListScreen());
                       },
                     ),
                   ),
 
-                  /// Booth Members
-                  dashboardCard(
-                    title: "Booth Members",
-                    value: "2",
-                    subtitle: "बूथ सदस्य विवरण",
-                    icon: Icons.groups_rounded,
-                    color: AppColors.yellow,
-                    onTap: () {
-                      //  Get.to(() => AddSurveyStaffScreen());
-                    },
-                  ),
-
-                  /// Panchyat Members
-                  dashboardCard(
-                    title: "Panchayt Members",
-                    value: "4",
-                    subtitle: "पंचायत सदस्य",
-                    icon: Icons.group_add_rounded,
-                    color: AppColors.red,
-                    onTap: () {
-                      // Get.to(() => AddSurveyStaffScreen());
-                    },
+                  /// Today Report
+                  Obx(
+                    () => dashboardCard(
+                      title: "Today Report",
+                      value: todaySurveyController.todaySurveyCount.value
+                          .toString(),
+                      subtitle: "आज के सर्वे",
+                      icon: Icons.event_note_rounded,
+                      color: const Color(0xFFFF9800),
+                      onTap: () {
+                        Get.to(() => const TodaySurveyScreen());
+                      },
+                    ),
                   ),
                 ],
               ),

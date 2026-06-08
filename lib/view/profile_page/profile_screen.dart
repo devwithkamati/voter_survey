@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:voter_survey_admin/view/profile_page/profile_info_screen.dart';
 
+import '../../controller/admin_profile_controller.dart';
+import '../../controller/auth_controller.dart';
 import '../../utils/appColors.dart';
 import '../dashbord_screen.dart';
+import '../login_screen.dart';
+import 'change_password_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final AdminProfileController profileController =
+      Get.find<AdminProfileController>();
   Widget premiumAppBarIcon(IconData icon) {
     return Container(
       height: 44,
@@ -35,399 +47,201 @@ class ProfileScreen extends StatelessWidget {
           /// ================= BODY =================
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(15),
 
               child: Column(
                 children: [
-                  /// ================= PREMIUM APP BAR =================
-                  /// ================= PREMIUM WHITE APP BAR =================
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
+                  SizedBox(height: 50),
+                  Builder(
+                    builder: (context) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-
-                      borderRadius: BorderRadius.circular(22),
-
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                          color: Colors.black.withOpacity(0.04),
-                        ),
-                      ],
-                    ),
-
-                    child: SafeArea(
-                      bottom: false,
-
-                      child: Row(
                         children: [
-                          /// BACK BUTTON
-                          GestureDetector(
-                            onTap: () {
-                              Get.offAll(() => DashBoardScreen());
-                            },
-
-                            child: Container(
-                              height: 42,
-                              width: 42,
-
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF5F7FB),
-
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-
-                              child: const Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                color: AppColors.textDark,
-                                size: 18,
-                              ),
-                            ),
-                          ),
-
-                          /// TITLE
-                          const Expanded(
-                            child: Center(
-                              child: Text(
-                                "My Profile",
-
-                                style: TextStyle(
-                                  color: AppColors.textDark,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          /// EDIT BUTTON
-                          Container(
-                            height: 42,
-                            width: 42,
-
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF5F7FB),
-
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-
-                            child: const Icon(
-                              Icons.edit_rounded,
-                              color: AppColors.textDark,
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  /// ================= PERSONAL =================
-                  premiumSection(
-                    children: [
-                      profileTile(
-                        color: const Color(0xFF7B4DFF),
-                        icon: Icons.person_outline_rounded,
-                        title: "Personal Info",
-                        subTitle: "Name, contact, address",
-                        onTap: () {
-                          //  Get.to(const PersonalInfoScreen());
-                        },
-                      ),
-
-                      divider(),
-
-                      profileTile(
-                        color: const Color(0xFF2196F3),
-                        icon: Icons.badge_outlined,
-                        title: "Surveyor Details",
-                        subTitle: "ID : SV12345 | Block : Sikanderpur",
-                        onTap: () {
-                          // Get.to(const PersonalInfoScreen());
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  /// ================= PERFORMANCE =================
-                  premiumSection(
-                    children: [
-                      profileTile(
-                        color: const Color(0xFFFF9800),
-                        icon: Icons.settings_outlined,
-                        title: "Settings",
-                        subTitle: "Language, notifications, theme",
-                        onTap: () {
-                          // Get.to(const PersonalInfoScreen());
-                        },
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  /// ================= SUPPORT =================
-                  premiumSection(
-                    children: [
-                      profileTile(
-                        color: const Color(0xFF607D8B),
-                        icon: Icons.help_outline_rounded,
-                        title: "Help & Support",
-                        subTitle: "FAQs and contact support",
-                        onTap: () {
-                          // Get.to(const PersonalInfoScreen());
-                        },
-                      ),
-
-                      divider(),
-
-                      profileTile(
-                        color: const Color(0xFFFF4B4B),
-                        icon: Icons.logout_rounded,
-                        title: "Logout",
-                        subTitle: "Sign out from account",
-
-                        onTap: () {
-                          showDialog(
-                            context: context,
-
-                            barrierDismissible: false,
-
-                            builder: (context) {
-                              return Dialog(
-                                backgroundColor: Colors.transparent,
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Get.offAll(() => DashBoardScreen());
+                                },
 
                                 child: Container(
-                                  padding: const EdgeInsets.all(24),
+                                  padding: const EdgeInsets.all(9),
 
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
-
-                                    borderRadius: BorderRadius.circular(30),
+                                    color: AppColors.white,
+                                    borderRadius: BorderRadius.circular(14),
 
                                     boxShadow: [
                                       BoxShadow(
-                                        blurRadius: 25,
-
-                                        color: Colors.black.withOpacity(0.12),
-
-                                        offset: const Offset(0, 10),
+                                        color: Colors.black.withOpacity(0.03),
+                                        blurRadius: 8,
                                       ),
                                     ],
                                   ),
 
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-
-                                    children: [
-                                      /// LOGOUT ICON
-                                      Container(
-                                        height: 70,
-                                        width: 70,
-
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.red.shade400,
-                                              Colors.red.shade600,
-                                            ],
-                                          ),
-
-                                          boxShadow: [
-                                            BoxShadow(
-                                              blurRadius: 18,
-
-                                              color: Colors.red.withOpacity(
-                                                0.25,
-                                              ),
-
-                                              offset: const Offset(0, 8),
-                                            ),
-                                          ],
-                                        ),
-
-                                        child: const Icon(
-                                          Icons.logout_rounded,
-
-                                          color: Colors.white,
-
-                                          size: 35,
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 16),
-
-                                      /// TITLE
-                                      const Text(
-                                        "Logout Account",
-
-                                        style: TextStyle(
-                                          fontSize: 22,
-
-                                          fontWeight: FontWeight.w800,
-
-                                          color: AppColors.textDark,
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 8),
-
-                                      /// SUBTITLE
-                                      Text(
-                                        "Are you sure you want to logout from the app?",
-
-                                        textAlign: TextAlign.center,
-
-                                        style: TextStyle(
-                                          fontSize: 14,
-
-                                          color: Colors.grey.shade600,
-
-                                          height: 1.5,
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 24),
-
-                                      /// BUTTONS
-                                      Row(
-                                        children: [
-                                          /// CANCEL BUTTON
-                                          Expanded(
-                                            child: SizedBox(
-                                              height: 50,
-
-                                              child: OutlinedButton(
-                                                style: OutlinedButton.styleFrom(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          18,
-                                                        ),
-                                                  ),
-
-                                                  side: BorderSide(
-                                                    color: Colors.grey.shade300,
-                                                  ),
-                                                ),
-
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-
-                                                child: const Text(
-                                                  "Cancel",
-
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-
-                                                    fontWeight: FontWeight.w700,
-
-                                                    color: AppColors.textDark,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-
-                                          const SizedBox(width: 12),
-
-                                          /// LOGOUT BUTTON
-                                          Expanded(
-                                            child: Container(
-                                              height: 50,
-
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(18),
-
-                                                gradient: LinearGradient(
-                                                  colors: [
-                                                    Colors.red.shade400,
-                                                    Colors.red.shade600,
-                                                  ],
-                                                ),
-
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    blurRadius: 12,
-
-                                                    color: Colors.red
-                                                        .withOpacity(0.22),
-
-                                                    offset: const Offset(0, 6),
-                                                  ),
-                                                ],
-                                              ),
-
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.transparent,
-
-                                                  shadowColor:
-                                                      Colors.transparent,
-
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          18,
-                                                        ),
-                                                  ),
-                                                ),
-
-                                                onPressed: () {
-                                                  /// CLEAR SESSION
-
-                                                  //    StorageController.logout();
-
-                                                  debugPrint("SESSION CLEARED");
-
-                                                  /// GO LOGIN
-
-                                                  // Get.offAll(
-                                                  //       () => LoginScreen(),
-                                                  // );
-                                                },
-
-                                                child: const Text(
-                                                  "Logout",
-
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-
-                                                    fontWeight: FontWeight.w700,
-
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                  child: const Icon(
+                                    Icons.arrow_back_ios_rounded,
+                                    size: 25,
+                                    color: AppColors.textDark,
                                   ),
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              Center(
+                                child: const Text(
+                                  "My Profile",
+
+                                  style: TextStyle(
+                                    fontSize: 23,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textDark,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
 
+                  SizedBox(height: 20),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(.03),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 95,
+                          width: 95,
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
+                            ),
+                          ),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                "assets/images/aniltri.jpeg",
+                                fit: BoxFit.fitHeight,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        Obx(() {
+                          if (profileController.isLoading.value) {
+                            return const CircularProgressIndicator();
+                          }
+
+                          return Text(
+                            profileController.profile.value?.adminName ??
+                                "Admin",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  /// ================= PERSONAL =================
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(.05),
+                          blurRadius: 25,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                      border: Border.all(color: const Color(0xFFF1F3F6)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        profileTile(
+                          color: const Color(0xFF7B4DFF),
+                          icon: Icons.person_outline_rounded,
+                          title: "Personal Info",
+                          subTitle: "Name, contact, address",
+                          onTap: () {
+                            Get.to(() => const PersonalInfoScreen());
+                          },
+                        ),
+
+                        // const SizedBox(height: 10),
+                        //
+                        // profileTile(
+                        //   color: const Color(0xFF2196F3),
+                        //   icon: Icons.badge_outlined,
+                        //   title: "Surveyor Details",
+                        //   subTitle: "ID : SV12345 | Block : Sikanderpur",
+                        //   onTap: () {},
+                        // ),
+                        const SizedBox(height: 10),
+
+                        profileTile(
+                          color: const Color(0xFFFF9800),
+                          icon: Icons.settings_outlined,
+                          title: "Settings",
+                          subTitle: "Change Password",
+                          onTap: () {
+                            Get.to(() => const ChangePasswordScreen());
+                          },
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        profileTile(
+                          color: const Color(0xFF607D8B),
+                          icon: Icons.help_outline_rounded,
+                          title: "Help & Support",
+                          subTitle: "FAQs and contact support",
+                          onTap: () {},
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        profileTile(
+                          color: const Color(0xFFFF4B4B),
+                          icon: Icons.logout_rounded,
+                          title: "Logout",
+                          subTitle: "Sign out from account",
+                          onTap: () {
+                            showLogoutDialog();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 36),
 
                   /// ================= FOOTER =================
@@ -461,44 +275,68 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  /// ================= PREMIUM ICON =================
-  Widget premiumIcon(IconData icon) {
-    return Container(
-      height: 42,
-      width: 42,
+  void showLogoutDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.logout_rounded, color: Colors.red),
+              SizedBox(width: 10),
+              Text("Logout"),
+            ],
+          ),
+          content: const Text(
+            "Are you sure you want to logout from your account?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back();
+              },
+              child: const Text("Cancel"),
+            ),
 
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                /// Clear Storage
+                StorageService.logout();
 
-        borderRadius: BorderRadius.circular(15),
+                /// Close Dialog
+                Get.back();
 
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-      ),
-
-      child: Icon(icon, color: Colors.white, size: 22),
+                /// Go Login Screen
+                Get.offAll(() => const LoginScreen());
+              },
+              child: const Text("Logout"),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  /// ================= PREMIUM SECTION =================
-  Widget premiumSection({required List<Widget> children}) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 16,
-            spreadRadius: 1,
-            color: Colors.black.withOpacity(0.035),
-            offset: const Offset(0, 8),
-          ),
-        ],
+  Widget sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, bottom: 12),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.2,
+          color: Colors.grey.shade600,
+        ),
       ),
-
-      child: Column(children: children),
     );
   }
 
@@ -510,66 +348,52 @@ class ProfileScreen extends StatelessWidget {
     required String subTitle,
     required VoidCallback onTap,
   }) {
+    final bool isLogout = title == "Logout";
+
     return InkWell(
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(24),
       onTap: onTap,
-
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-
-          color: const Color(0xFFF9FAFD),
-
-          border: Border.all(color: Colors.grey.shade100),
+          color: isLogout ? const Color(0xFFFFF5F5) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: isLogout ? const Color(0xFFFFDADA) : const Color(0xFFF0F2F5),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(.04),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-
         child: Row(
           children: [
-            /// ICON
             Container(
-              height: 45,
-              width: 45,
-
+              height: 54,
+              width: 54,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-
+                borderRadius: BorderRadius.circular(18),
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [color, color.withOpacity(0.82)],
+                  colors: [color, color.withOpacity(.85)],
                 ),
-
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 10,
-                    spreadRadius: 1,
-                    color: color.withOpacity(0.18),
-                    offset: const Offset(0, 6),
-                  ),
-                ],
               ),
-
-              child: Icon(icon, color: Colors.white, size: 22),
+              child: Icon(icon, color: Colors.white, size: 26),
             ),
 
             const SizedBox(width: 14),
 
-            /// TEXT
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-
                 children: [
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textDark,
-                      letterSpacing: 0.1,
                     ),
                   ),
 
@@ -577,48 +401,24 @@ class ProfileScreen extends StatelessWidget {
 
                   Text(
                     subTitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.greyText,
-                      height: 1.2,
-                    ),
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
 
-            /// ARROW
             Container(
-              height: 30,
-              width: 30,
-
+              height: 36,
+              width: 36,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                color: const Color(0xFFF4F6FA),
+                borderRadius: BorderRadius.circular(12),
               ),
-
-              child: Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 14,
-                color: Colors.grey.shade500,
-              ),
+              child: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  /// ================= DIVIDER =================
-  Widget divider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-
-      child: Divider(height: 1, thickness: 1, color: Colors.grey.shade100),
     );
   }
 }

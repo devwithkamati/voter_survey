@@ -119,7 +119,7 @@ class _DashBoardScreenState extends State<DashBoardScreen> {
                 BottomNavigationBarItem(
                   icon: Icon(Icons.comment_bank_rounded),
                   activeIcon: Icon(Icons.comment_bank_outlined),
-                  label: "Compliaint",
+                  label: "Compliant",
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person),

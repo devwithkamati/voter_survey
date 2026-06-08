@@ -3,9 +3,16 @@ import 'package:get_storage/get_storage.dart';
 class StorageService {
   static final box = GetStorage();
 
-  //static final box = GetStorage();
-
   static const String employeeIdKey = "employeeId";
+  static const String adminIdKey = "adminId";
+
+  static void saveAdminId(int id) {
+    box.write(adminIdKey, id);
+  }
+
+  static int getAdminId() {
+    return box.read(adminIdKey) ?? 0;
+  }
 
   static void saveEmployeeId(int id) {
     box.write(employeeIdKey, id);
